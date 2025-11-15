@@ -115,4 +115,21 @@ const mockData = { ... }
 ## Reference
 
 **Documentation**: [README.md](README.md) | [CLAUDE.md](CLAUDE.md)  
-**Next Steps**: Chatbot integration → Basic UI → Deploy → Demo prep (7hr timeline)
+**Next Steps**: ✅ ~~Chatbot integration~~ → Basic listing UI with safety scores → Deploy → Demo prep (7hr timeline)
+
+## Chatbot Implementation Complete
+
+### Features Delivered:
+- **Multi-category RAG**: AI has complete context across restaurants, accommodations, tours, events
+- **Human-readable signals**: "Food Quality: 95" instead of "food_quality:95"
+- **Markdown formatting**: Professional responses with **bold**, bullet points, sections
+- **Real-time chat**: Auto-scroll, typing indicators, conversation history
+- **Professional UI**: Landing page + chat interface with quick suggestions
+
+### API Endpoints:
+- `POST /api/chat` - Multi-category travel planning conversations
+- `POST /api/analyze` - Category-adaptive safety score analysis
+
+### Testing:
+- `tests/test-chatbot.js` - Comprehensive conversation scenarios
+- All TypeScript/lint compliant
