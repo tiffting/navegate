@@ -115,4 +115,4 @@ const mockData = { ... }
 ## Reference
 
 **Documentation**: [README.md](README.md) | [CLAUDE.md](CLAUDE.md)  
-**Next Steps**: Category analysis → Chatbot → Basic UI → Deploy (7hr timeline)
+**Next Steps**: Chatbot integration → Basic UI → Deploy → Demo prep (7hr timeline)
