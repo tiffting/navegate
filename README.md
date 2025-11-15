@@ -71,9 +71,11 @@ For detailed testing, troubleshooting, and code organization → see **[DEVELOPM
 
 AI-powered vegan travel platform with category-adaptive review analysis, explainable safety scores, and conversational trip planning across restaurants, accommodations, tours, and events.
 
-*Complete feature specs and project strategy in [CLAUDE.md](CLAUDE.md)*
+*Complete feature specs and project strategy in [CLAUDE.md](CLAUDE.md)*  
+*Design system and UX strategy in [DESIGN.md](DESIGN.md)*
 
 ## Documentation
 
 - **[CLAUDE.md](CLAUDE.md)** → Complete project specifications, AI prompts, team strategy
+- **[DESIGN.md](DESIGN.md)** → UX strategy, visual language, component patterns  
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** → Technical setup, testing, troubleshooting, code organization

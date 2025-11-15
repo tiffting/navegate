@@ -19,7 +19,7 @@ This ensures documentation stays current across all AI sessions.
 
 ## Current Project State (IMPORTANT: Update this as you go for cross-session continuity)
 
-**Last Updated**: Nov 15, 2025 11:30pm CET (AI Travel Assistant Chatbot complete)
+**Last Updated**: Nov 15, 2025 11:45pm CET (Complete chatbot + UX strategy + documentation refactor)
 
 **What's Implemented**:
 
@@ -73,6 +73,42 @@ This ensures documentation stays current across all AI sessions.
 
 ---
 
+### Target Persona & Market Strategy
+
+**PRIMARY PERSONA: Established vegans (1-5 years) who travel 2+ times/year**
+
+**Why this is our largest TAM:**
+
+**Market size:**
+- Global vegans: 79M+ 
+- Travel 2+ times/year: ~40% = **31M addressable users**
+- Growing 20-25% annually in key markets
+
+**Pain severity:**
+- Confident enough to travel but still face cobbling friction (HappyCow + Vegvisits + Google + Reddit)
+- Highest willingness to pay ($5-15/month for complete solution)
+- Active social media sharers (organic growth multiplier)
+
+**Competition gap:**
+- HappyCow: restaurants only
+- Vegvisits: accommodations only
+- **No complete solution exists = blue ocean opportunity**
+
+**MVP validation target:**
+- Europe focus: 1M potential users (Germany 500K)
+- Proof of concept → global expansion pitch
+
+**Secondary personas** (TAM expansion opportunities):
+- Non-vegans exploring plant-based (3x market size potential)
+- Business travelers (premium pricing tier)
+- New vegans (onboarding funnel from advocacy orgs)
+
+**Revenue potential:**
+- 31M × $8/month avg × 5% conversion rate = **$148M TAM**
+- Realistic Year 1 goal: 10K users × $8/month = $960K ARR
+
+---
+
 ### MVP Scope (7-hr build window - FOCUSED)
 
 **TIER 1 - MUST DEMO:**
@@ -82,6 +118,8 @@ This ensures documentation stays current across all AI sessions.
 - **AI Travel Assistant Chatbot** (SHOWSTOPPER): Conversational interface for complete trip planning across all categories
 - User authentication (Firebase)
 - Map view with category filtering
+
+**CRITICAL GAP IDENTIFIED**: Current chatbot provides recommendations but lacks **actionable logistics** for true itinerary planning
 
 **TIER 2 - IF TIME (unlikely with 7-hr window):**
 
@@ -96,6 +134,141 @@ This ensures documentation stays current across all AI sessions.
 - Booking integration
 
 ---
+
+### Post-Hackathon Priority: Actionable Travel Intelligence
+
+**Current State**: Chatbot provides safety-focused recommendations but lacks logistics for actual trip execution.
+
+**Example Gap**: 
+- ✅ Current: "I recommend Berlin Vegan Market (91/100 safety score) for excellent food quality"
+- ❌ Missing: "Berlin Vegan Market happens first Saturday of each month, 10am-6pm at Boxhagener Platz"
+
+**Essential Logistics Data Needed**:
+
+**For Restaurants**:
+- Operating hours (daily schedules + seasonal changes)
+- Reservation requirements/policies
+- Price ranges and payment methods
+- Location details (exact address + nearest transit)
+
+**For Accommodations**:
+- Availability calendars and booking links
+- Check-in/check-out procedures
+- Amenity access hours (kitchen, breakfast times)
+- Cancellation policies
+
+**For Tours**:
+- Scheduled dates and duration
+- Meeting points and logistics
+- Booking requirements and group sizes
+- Weather-dependent scheduling
+
+**For Events**:
+- Recurring schedules (weekly/monthly patterns)
+- Ticket availability and pricing
+- Venue capacity and accessibility
+- Duration and programming details
+
+**Implementation Strategy**:
+
+**Phase 1 - Data Enhancement** (Post-hackathon priority):
+- Expand `lib/types.ts` with logistics fields
+- Update mock data with realistic schedules
+- Enhance database schema for operational details
+
+**Phase 2 - Smart Scheduling**:
+- AI understands time constraints ("3-day trip")
+- Suggests realistic daily itineraries with travel time
+- Flags scheduling conflicts and availability issues
+
+**Phase 3 - Live Integration**:
+- Real-time availability APIs (Google Places, booking platforms)
+- Calendar integration for personal trip planning
+- Smart notifications for schedule changes
+
+**Business Impact**: This transforms VeganBnB from "discovery tool" to "complete travel assistant" - justifying premium pricing and increasing user stickiness.
+
+### Data Architecture Strategy: Store vs Fetch
+
+**The Challenge**: Logistics data has different update frequencies and reliability needs.
+
+**Hybrid Approach** (Recommended):
+
+**STORE LOCALLY** (Performance + Reliability):
+- **Basic hours** (restaurants, shops) - Changes infrequently, critical for trip planning
+- **Recurring events** (weekly markets, monthly meetups) - Predictable patterns
+- **Price ranges** - Rough estimates sufficient, changes slowly
+- **Contact/booking info** - Relatively stable
+
+**FETCH REAL-TIME** (Accuracy Critical):
+- **Current availability** (hotel rooms, tour spots) - High volatility
+- **Special closures** (holidays, maintenance) - Unpredictable changes  
+- **Live pricing** (dynamic pricing models) - Constant fluctuation
+- **Event cancellations** - Critical accuracy for user experience
+
+**Update Strategy by Category**:
+
+**Restaurants**: 
+- Store: Basic hours, contact info, price range
+- Fetch: Holiday closures, special events, current wait times (if available)
+- Update frequency: Monthly batch updates + real-time closure checks
+
+**Accommodations**:
+- Store: Check-in policies, amenity hours, contact info
+- Fetch: Room availability, current pricing, booking links
+- Update frequency: Real-time for availability, weekly for policies
+
+**Tours**:
+- Store: General schedules, meeting points, booking requirements
+- Fetch: Available dates, current pricing, capacity status
+- Update frequency: Real-time for bookings, monthly for logistics
+
+**Events**:
+- Store: Recurring patterns, venue info, typical pricing
+- Fetch: Specific dates, ticket availability, last-minute changes
+- Update frequency: Real-time for tickets, weekly for schedules
+
+**Technical Implementation**:
+```typescript
+interface Listing {
+  // Stored locally (cached)
+  basicInfo: {
+    hours: OperatingHours;
+    contact: ContactInfo;
+    priceRange: string;
+  };
+  
+  // Fetched real-time
+  liveData: {
+    availability?: AvailabilityStatus;
+    currentPricing?: PricingInfo;
+    specialNotices?: string[];
+  };
+  
+  lastUpdated: {
+    basicInfo: Date;
+    liveData: Date;
+  };
+}
+```
+
+**Business Benefits**:
+- **Fast UX**: Instant basic info from local storage
+- **Accurate planning**: Real-time availability prevents disappointment
+- **Cost efficiency**: Minimize expensive API calls for stable data
+- **Reliability**: Graceful degradation when external APIs fail
+
+---
+
+### Design Framework
+
+**Complete UX strategy, visual language, and component patterns** → See **[DESIGN.md](DESIGN.md)**
+
+**Key Design Principles** (derived from target persona):
+- **Safety-first information hierarchy**: Scores prominent, explanations accessible
+- **Efficiency over education**: Minimal clicks, unified multi-category interface
+- **Premium aesthetic**: Professional polish justifying $5-15/month pricing
+- **Mobile-optimized**: Thumb-friendly, offline-capable, quick-scan layouts
 
 ### Tech Stack
 
@@ -140,6 +313,12 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 - Signals: Food quality/options, accessibility, community vibe, inclusivity
 
 **Each listing needs**: Name, address/location, category, description, website/booking link, 3-5 review excerpts
+
+**IDENTIFIED ENHANCEMENT** (Post-hackathon): Add operational logistics to make recommendations actionable:
+- **Hours/schedules** (essential for trip planning)
+- **Booking requirements** (reservations, tickets, availability)
+- **Pricing information** (budget planning)
+- **Access logistics** (meeting points, check-in procedures)
 
 ---
 
@@ -337,8 +516,8 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 
 ### Demo Script (5 minutes)
 
-**0:00-0:30 | The Problem**
-"As vegan travelers, we juggle research from HappyCow for restaurants, Vegvisits for hotels, Google for tours, Reddit for events. Every trip = 5+ sources. No one gives us complete travel intelligence. Until now."
+**0:00-0:30 | The Problem + Market**
+"31 million established vegans travel 2+ times per year, and we ALL do the same exhausting research dance: HappyCow for restaurants, Vegvisits for hotels, Google for tours, Reddit for events. Every single trip = 5+ sources, hours of cobbling together fragmented information. We're confident enough to travel, but the research friction is real. No one gives us complete travel intelligence. Until now."
 
 **0:30-2:00 | Multi-Category AI Analysis (HERO)**
 
@@ -364,15 +543,15 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 - Shows contextual understanding across categories
 - "No more juggling. One conversation. Complete trip."
 
-**4:00-4:45 | Impact & Innovation**
+**4:00-4:45 | Market Opportunity & Innovation**
 
-- "Multi-modal AI: NLP + Vision + Conversational"
-- "Category-adaptive: Different safety signals per travel decision"
-- "Explainable: Shows reasoning, not black box"
-- "Complete: Solves the cobbling problem"
-- "40 listings today, any city tomorrow"
-- "First platform treating vegan travel as integrated experience, not just restaurants"
-- "$2,000 funding: expand to 5 cities (200 listings each), mobile app, booking integration"
+- "**$148M TAM**: 31M established vegans willing to pay $5-15/month for this complete solution"
+- "**Blue ocean**: HappyCow does restaurants, Vegvisits does hotels, we do EVERYTHING"
+- "**Technical moat**: Multi-modal AI with category-adaptive analysis"
+- "**Viral growth**: Our target persona are active social media sharers"
+- "**Proof of concept**: 40 listings today, any city tomorrow"
+- "**Expansion ready**: 3x TAM with non-vegan plant-based explorers"
+- "$2,000 funding goal: 5 cities (1,000 listings), mobile app, booking integration → $960K ARR Year 1"
 
 **4:45-5:00 | Q&A**
 
@@ -383,9 +562,10 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 **Impact** (Judges' #1 concern):
 
 - Addresses millions of vegan travelers globally
-- Solves real pain point (juggling multiple sources)
-- First complete vegan travel platform
+- Solves real pain point (juggling multiple sources) + **logistics coordination**
+- First complete vegan travel platform (beyond just discovery)
 - Authentic founder story (Prudhvi "lives this daily", and Tiff does this for trips multiple times a year)
+- **Monetization lever**: Actionable intelligence justifies premium pricing vs discovery-only tools
 
 **Innovation** (Technical judges):
 
