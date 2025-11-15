@@ -4,9 +4,21 @@
 
 ---
 
+## AI Assistant Instructions (IMPORTANT: Follow before every commit)
+
+Before suggesting any commit message, ALWAYS:
+1. Update CLAUDE.md: "What's Implemented", "Next Priority Tasks", "Proposed Task Breakdown", timestamp
+2. Update DEVELOPMENT.md: "Next Steps" section  
+3. Update README.md: Any relevant status indicators
+4. THEN suggest commit message
+
+This ensures documentation stays current across all AI sessions.
+
+---
+
 ## Current Project State (IMPORTANT: Update this as you go for cross-session continuity)
 
-**Last Updated**: Nov 15, 2025 9:15pm CET (Firebase complete)
+**Last Updated**: Nov 15, 2025 9:30pm CET (TypeScript types complete)
 
 **What's Implemented**:
 
@@ -14,6 +26,7 @@
 - ✅ ESM modules (`"type": "module"` in package.json)
 - ✅ Google Gemini API integration working (`gemini-2.5-flash`)
 - ✅ Firebase setup complete (Auth + Firestore, tested)
+- ✅ TypeScript interfaces complete (`lib/types.ts` with all core types)
 - ✅ Working test files: `tests/test-gemini.js`, `tests/test-firebase.js`
 - ✅ Documentation: README.md, DEVELOPMENT.md, CLAUDE.md
 - ✅ Environment: `.env.local` with API keys
@@ -30,7 +43,7 @@
 **Next Priority Tasks**:
 
 1. ✅ ~~Firebase project setup~~
-2. Create core TypeScript interfaces
+2. ✅ ~~Create core TypeScript interfaces~~
 3. Implement category-adaptive review analysis
 4. Build chatbot with multi-category context
 
@@ -248,7 +261,7 @@ Format as structured JSON.
 **Koray**: AI chatbot UI, multi-category views, map integration
 **Dhruthi**: Detail views, score explanation modals, auth UI
 **Harshini**: Dataset prep (tours/events), computer vision features
-**Tiff**: Design system, wireframes, dataset coordination ✅
+**Tiff**: Design system, wireframes, dataset coordination, Firebase setup ✅, TypeScript interfaces ✅
 
 _Note: These are initial suggestions based on stated interests/locations. Final assignments to be determined as a team._
 

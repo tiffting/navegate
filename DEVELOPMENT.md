@@ -66,6 +66,13 @@ lib/
 - **Mock first**: Build UI with fake data, connect APIs last
 - **Validate responses**: AI can return malformed JSON
 
+### Before Every Commit
+- [ ] Update CLAUDE.md: "What's Implemented", "Next Priority Tasks", "Proposed Task Breakdown", timestamp
+- [ ] Update DEVELOPMENT.md: "Next Steps" section
+- [ ] Update README.md: Any relevant status indicators
+- [ ] Test changes work (`npm run build && npm run lint`)
+- [ ] Then commit with descriptive message
+
 ## Team Coordination
 
 ### Git Workflow
@@ -108,4 +115,4 @@ const mockData = { ... }
 ## Reference
 
 **Documentation**: [README.md](README.md) | [CLAUDE.md](CLAUDE.md)  
-**Next Steps**: Type definitions → API routes → Components → Category analysis
+**Next Steps**: API routes → Components → Category analysis → Chatbot integration
