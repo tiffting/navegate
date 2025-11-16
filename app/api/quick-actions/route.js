@@ -47,6 +47,18 @@ function buildQuickActionsPrompt(lastMessage, conversationHistory) {
     `${msg.role}: ${msg.content}`
   ).join('\n');
 
+  const isWelcomeMessage = conversationHistory.length === 0 && 
+    (lastMessage.content.includes('Which city') || lastMessage.content.includes('planning to visit'));
+
+  if (isWelcomeMessage) {
+    return `The vegan travel assistant just asked "Which city are you planning to visit?" 
+
+Generate 4 popular travel destination cities that vegan travelers commonly visit. Focus on cities known for good vegan scenes.
+
+Return exactly 4 city names, one per line, no quotes, no numbering, no explanations.
+Examples: Berlin, Paris, Amsterdam, Barcelona`;
+  }
+
   return `You are generating contextual quick action suggestions for a vegan travel chatbot conversation.
 
 CONVERSATION CONTEXT:
@@ -108,9 +120,9 @@ function parseQuickActionResponse(text) {
 function getFallbackSuggestions(lastMessageContent = '') {
   const content = lastMessageContent.toLowerCase();
   
-  // Welcome message fallback - offer popular cities
+  // Welcome message fallback - offer popular vegan-friendly cities
   if (content.includes('which city') || content.includes('planning to visit')) {
-    return ["Berlin", "Paris", "Amsterdam", "Barcelona"];
+    return ["Berlin", "London", "Amsterdam", "Barcelona"];
   }
   
   // City-based fallbacks

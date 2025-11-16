@@ -40,7 +40,8 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [quickActionSuggestions, setQuickActionSuggestions] = useState<string[]>([])
-  const [welcomeActionsGenerated, setWelcomeActionsGenerated] = useState(false)
+  const [quickActionsLoading, setQuickActionsLoading] = useState(false)
+  const lastGeneratedActionsForMessageId = useRef<string | null>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastUserMessageRef = useRef<HTMLDivElement>(null)
@@ -53,13 +54,27 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
     }
   }, [messages])
 
-  // Initialize quick actions for welcome message on first load
+  // Generate quick actions for new assistant messages
   useEffect(() => {
-    if (!welcomeActionsGenerated && messages.length === 1 && messages[0].role === 'assistant') {
-      generateQuickActions(messages[0], [])
-      setWelcomeActionsGenerated(true)
+    const lastMessage = messages[messages.length - 1]
+    
+    // Only generate if we have an assistant message that we haven't generated actions for yet
+    if (lastMessage && 
+        lastMessage.role === 'assistant' && 
+        lastGeneratedActionsForMessageId.current !== lastMessage.id) {
+      
+      // For welcome message (first assistant message with empty history)
+      if (messages.length === 1) {
+        generateQuickActions(lastMessage, [])
+      } 
+      // For regular assistant responses (after user messages)
+      else {
+        generateQuickActions(lastMessage, messages.slice(0, -1)) // All messages except the last one
+      }
+      
+      lastGeneratedActionsForMessageId.current = lastMessage.id
     }
-  }, [messages, welcomeActionsGenerated]) // Include all dependencies but protect against loops
+  }, [messages]) // Only depend on messages, but use ref to prevent duplicate generation
 
   const sendMessage = async (messageText?: string) => {
     const text = messageText || input.trim()
@@ -75,6 +90,11 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
     setMessages(prev => [...prev, userMessage])
     setInput("")
     setIsLoading(true)
+    
+    // Clear quick actions immediately when user sends a message
+    setQuickActionSuggestions([])
+    // Reset the tracking ref so stale actions don't reappear
+    lastGeneratedActionsForMessageId.current = null
     
     // Scroll to user message after sending (will be the last user message)
     setTimeout(() => {
@@ -110,9 +130,6 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
       }
 
       setMessages(prev => [...prev, assistantMessage])
-      
-      // Generate AI-powered quick actions after assistant responds
-      generateQuickActions(assistantMessage, [...messages, userMessage])
     } catch (error) {
       console.error('Chat error:', error)
       const errorMessage: Message = {
@@ -128,6 +145,7 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
   }
 
   const generateQuickActions = async (lastMessage: Message, conversationHistory: Message[]) => {
+    setQuickActionsLoading(true)
     try {
       const response = await fetch('/api/quick-actions', {
         method: 'POST',
@@ -149,7 +167,7 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
         let suggestions
         
         if (content.includes('which city') || content.includes('planning to visit')) {
-          suggestions = ["Berlin", "Paris", "Amsterdam", "Barcelona"]
+          suggestions = ["Berlin", "London", "Amsterdam", "Barcelona"]
         } else if (content.includes('restaurant') || content.includes('dining')) {
           suggestions = ["What about accommodations?", "Any nearby hotels?", "Show me food tours", "I'm also gluten-free"]
         } else {
@@ -165,7 +183,7 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
       let suggestions
       
       if (content.includes('which city') || content.includes('planning to visit')) {
-        suggestions = ["Berlin", "Paris", "Amsterdam", "Barcelona"]
+        suggestions = ["Berlin", "London", "Amsterdam", "Barcelona"]
       } else if (content.includes('restaurant') || content.includes('dining')) {
         suggestions = ["What about accommodations?", "Any nearby hotels?", "Show me food tours", "I'm also gluten-free"]
       } else {
@@ -173,6 +191,8 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
       }
       
       setQuickActionSuggestions(suggestions)
+    } finally {
+      setQuickActionsLoading(false)
     }
   }
 
@@ -305,23 +325,32 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
               </div>
               
               {/* AI-powered quick actions after last assistant message */}
-              {isLastAssistantMessage && quickActionSuggestions.length > 0 && (
+              {isLastAssistantMessage && (quickActionSuggestions.length > 0 || quickActionsLoading) && (
                 <div className="mt-3 mb-4">
-                  <div className="flex flex-wrap gap-2">
-                    {quickActionSuggestions.map((suggestion, index) => (
-                      <button
-                        key={`${suggestion}-${index}`}
-                        onClick={() => {
-                          // Send message directly with the suggestion text
-                          handleQuickActionClick(suggestion)
-                        }}
-                        className="text-sm bg-green-50 hover:bg-green-100 border border-green-200 rounded-full px-3 py-1.5 text-green-700 transition-colors"
-                        disabled={isLoading}
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </div>
+                  {quickActionsLoading ? (
+                    <div className="flex gap-2">
+                      <div className="h-7 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+                      <div className="h-7 w-20 bg-gray-200 rounded-full animate-pulse"></div>
+                      <div className="h-7 w-18 bg-gray-200 rounded-full animate-pulse"></div>
+                      <div className="h-7 w-22 bg-gray-200 rounded-full animate-pulse"></div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {quickActionSuggestions.map((suggestion, index) => (
+                        <button
+                          key={`${suggestion}-${index}`}
+                          onClick={() => {
+                            // Send message directly with the suggestion text
+                            handleQuickActionClick(suggestion)
+                          }}
+                          className="text-sm bg-green-50 hover:bg-green-100 border border-green-200 rounded-full px-3 py-1.5 text-green-700 transition-colors"
+                          disabled={isLoading}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
