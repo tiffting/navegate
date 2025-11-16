@@ -40,10 +40,12 @@ async function testFirebaseConnection() {
         console.log(`✓ Auth initialized: ${auth.app.name}`);
         
         console.log("\n🎉 All Firebase tests passed! Ready for development.");
+        process.exit(0);
         
     } catch (error) {
         console.error("❌ Firebase test failed:", error.message);
         console.error("Full error:", error);
+        process.exit(1);
     }
 }
 

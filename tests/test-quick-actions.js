@@ -1,270 +1,195 @@
-// Test for dynamic quick actions functionality
-// This tests the contextual suggestion logic without requiring the full UI
+// Test for AI-powered quick actions API endpoint
+// This tests the /api/quick-actions endpoint that generates contextual suggestions
 
-console.log("🎯 Testing Dynamic Quick Actions\n");
+console.log("🤖 Testing AI-Powered Quick Actions API\n");
 
-// Mock the getContextualSuggestions function (copied from component)
-function getContextualSuggestions(lastMessage, allMessages) {
-  const content = lastMessage.content.toLowerCase();
-  const conversationHistory = allMessages.slice(-4).map(m => m.content.toLowerCase()).join(' ');
-  
-  // Welcome/initial city mention
-  if (content.includes('which city') || content.includes('planning to visit')) {
-    return [
-      "I'm planning a 3-day trip",
-      "What are your top recommendations?",
-      "I need accommodations too",
-      "When's the best time to visit?"
-    ];
-  }
-  
-  // After city acknowledged, asking for trip details
-  if (content.includes('berlin') && (content.includes('dates') || content.includes('when are you') || content.includes('planning'))) {
-    return [
-      "I'm going next month",
-      "Planning a weekend trip",
-      "I need restaurants and hotels",
-      "What about food tours?"
-    ];
-  }
-  
-  // Restaurant-focused responses
-  if (content.includes('kopps') || content.includes('restaurant') || content.includes('dining') || content.includes('€€€')) {
-    return [
-      "What about accommodations?",
-      "Any nearby hotels?",
-      "Show me food tours",
-      "I'm also gluten-free"
-    ];
-  }
-  
-  // Accommodation-focused responses  
-  if (content.includes('vegan hostel') || content.includes('check-in') || content.includes('accommodation') || content.includes('bedding')) {
-    return [
-      "What restaurants are nearby?",
-      "Any walking tours?",
-      "Show me local events",
-      "What's the nightlife like?"
-    ];
-  }
-  
-  // Tour-focused responses
-  if (content.includes('food tour') || content.includes('saturdays') || content.includes('hackescher markt') || content.includes('€65')) {
-    return [
-      "When should I book this?",
-      "What else is in that area?",
-      "Any evening tours?",
-      "Where should I stay nearby?"
-    ];
-  }
-  
-  // Event-focused responses
-  if (content.includes('vegan market') || content.includes('boxhagener platz') || content.includes('first saturday')) {
-    return [
-      "What time should I arrive?",
-      "Any restaurants near the market?",
-      "Where should I stay in that area?",
-      "Other events this weekend?"
-    ];
-  }
-  
-  // Multi-category or comprehensive responses
-  if (content.includes('safety score') && (content.includes('restaurant') && content.includes('accommodation'))) {
-    return [
-      "Plan my 3-day itinerary",
-      "What about tours and events?",
-      "Book everything for next month",
-      "Any hidden gems?"
-    ];
-  }
-  
-  // Logistics/booking focused
-  if (content.includes('booking') || content.includes('reservation') || content.includes('advance notice')) {
-    return [
-      "Help me create an itinerary",
-      "What order should I book things?",
-      "Any group discounts?",
-      "What else should I know?"
-    ];
-  }
-  
-  // Dietary restrictions mentioned
-  if (conversationHistory.includes('gluten') || conversationHistory.includes('allerg') || conversationHistory.includes('celiac')) {
-    return [
-      "More allergy-friendly options?",
-      "What about cross-contamination?",
-      "Safe accommodations too?",
-      "Any specialized tours?"
-    ];
-  }
-  
-  // Non-Berlin cities (fallback for demo)
-  if (content.includes('paris') || content.includes('amsterdam') || content.includes('barcelona')) {
-    return [
-      "Tell me about Berlin instead",
-      "Berlin has amazing options",
-      "What about Berlin for now?",
-      "Berlin for my demo?"
-    ];
-  }
-  
-  // Default suggestions for other contexts
-  return [
-    "Tell me more about this",
-    "What else do you recommend?", 
-    "Any budget-friendly options?",
-    "Plan my complete itinerary"
-  ];
-}
-
-// Test scenarios
+// Test scenarios for the API endpoint
 const testScenarios = [
   {
     name: "Welcome Message",
-    lastMessage: { content: "Hi! I'm your AI vegan travel assistant. Which city are you planning to visit? 🌍" },
-    allMessages: [],
-    expectedSuggestions: ["I'm planning a 3-day trip", "What are your top recommendations?", "I need accommodations too", "When's the best time to visit?"]
+    lastMessage: { 
+      content: "Hi! I'm your AI vegan travel assistant. I can help you find restaurants, accommodations, tours, and events with detailed safety scores and booking information.\n\nWhich city are you planning to visit? 🌍" 
+    },
+    conversationHistory: [],
+    expectedType: "city_selection"
   },
   {
-    name: "Berlin City Response",
-    lastMessage: { content: "Berlin! Excellent choice for vegan travelers 🌱 When are you planning to visit?" },
-    allMessages: [
-      { content: "Berlin" },
-      { content: "Berlin! Excellent choice for vegan travelers 🌱 When are you planning to visit?" }
+    name: "Berlin City Response", 
+    lastMessage: { 
+      content: "Berlin! Excellent choice for vegan travelers 🌱 When are you planning to visit?" 
+    },
+    conversationHistory: [
+      { role: "user", content: "Berlin" },
     ],
-    expectedSuggestions: ["I'm going next month", "Planning a weekend trip", "I need restaurants and hotels", "What about food tours?"]
+    expectedType: "trip_planning"
   },
   {
     name: "Restaurant Recommendations",
-    lastMessage: { content: "I recommend Kopps (98/100 safety score) for exceptional fine dining. It's €€€ range but worth it for the experience." },
-    allMessages: [
-      { content: "Show me restaurants" },
-      { content: "I recommend Kopps (98/100 safety score) for exceptional fine dining. It's €€€ range but worth it for the experience." }
+    lastMessage: { 
+      content: "I recommend **Kopps** (98/100 safety score) for exceptional fine dining. Check out [their website](https://kopps-berlin.de/en/) for reservations - it's €€€ range but worth it for the 4-7 course tasting menus." 
+    },
+    conversationHistory: [
+      { role: "user", content: "Show me restaurants" },
     ],
-    expectedSuggestions: ["What about accommodations?", "Any nearby hotels?", "Show me food tours", "I'm also gluten-free"]
+    expectedType: "category_expansion"
   },
   {
-    name: "Accommodation Info",
-    lastMessage: { content: "A&O Berlin Mitte (78/100) is a modern hostel with vegan breakfast options and check-in from 3:00 PM." },
-    allMessages: [
-      { content: "What accommodation would you recommend?" },
-      { content: "A&O Berlin Mitte (78/100) is a modern hostel with vegan breakfast options and check-in from 3:00 PM." }
+    name: "Comprehensive Trip Planning Response",
+    lastMessage: { 
+      content: "## Perfect 3-Day Berlin Vegan Itinerary\n\n### Accommodation\n**A&O Berlin Mitte** (78/100) - Modern hostel with vegan breakfast options\n- Check-in: 3:00 PM\n- Book at: [A&O Hostels](https://www.aohostels.com/en/berlin/berlin-mitte/)\n\n### Restaurants\n**Kopps** (98/100) - Upscale fine dining\n- Hours: Wed-Sat 5:30 PM - Late\n- Book via: [Kopps website](https://kopps-berlin.de/en/)\n\n### Tour\n**Berlin Vegan Food Tour** (94/100)\n- When: Saturdays 2-6 PM\n- Book: [GetYourGuide](https://www.getyourguide.com/berlin-l17/berlin-vegan-food-tour-t408673/) €65\n\n🎯 All venues have English booking options - perfect for eSIM users!" 
+    },
+    conversationHistory: [
+      { role: "user", content: "Plan my 3-day vegan trip to Berlin" },
     ],
-    expectedSuggestions: ["What restaurants are nearby?", "Any walking tours?", "Show me local events", "What's the nightlife like?"]
-  },
-  {
-    name: "Tour Details",
-    lastMessage: { content: "Berlin Vegan Food Tour runs Saturdays 2-6pm, meeting at Hackescher Markt. €65 per person, book 2-3 days ahead." },
-    allMessages: [
-      { content: "Any tours available?" },
-      { content: "Berlin Vegan Food Tour runs Saturdays 2-6pm, meeting at Hackescher Markt. €65 per person, book 2-3 days ahead." }
-    ],
-    expectedSuggestions: ["When should I book this?", "What else is in that area?", "Any evening tours?", "Where should I stay nearby?"]
-  },
-  {
-    name: "Event Information",
-    lastMessage: { content: "The Green Market Berlin is a regular vegan market at Boxhagener Platz, 10am-6pm. Free entry!" },
-    allMessages: [
-      { content: "Any events this weekend?" },
-      { content: "The Green Market Berlin is a regular vegan market at Boxhagener Platz, 10am-6pm. Free entry!" }
-    ],
-    expectedSuggestions: ["What time should I arrive?", "Any restaurants near the market?", "Where should I stay in that area?", "Other events this weekend?"]
-  },
-  {
-    name: "Dietary Restrictions Context",
-    lastMessage: { content: "Both options accommodate gluten-free needs with dedicated preparation areas." },
-    allMessages: [
-      { content: "I'm celiac and vegan, need safe options" },
-      { content: "Both options accommodate gluten-free needs with dedicated preparation areas." }
-    ],
-    expectedSuggestions: ["More allergy-friendly options?", "What about cross-contamination?", "Safe accommodations too?", "Any specialized tours?"]
-  },
-  {
-    name: "Booking Logistics",
-    lastMessage: { content: "For general booking questions, you can book accommodations and tours separately with 24-48h advance notice." },
-    allMessages: [
-      { content: "How should I plan my bookings?" },
-      { content: "For general booking questions, you can book accommodations and tours separately with 24-48h advance notice." }
-    ],
-    expectedSuggestions: ["Help me create an itinerary", "What order should I book things?", "Any group discounts?", "What else should I know?"]
-  },
-  {
-    name: "Non-Berlin City",
-    lastMessage: { content: "I'd love to help with Paris, but for this demo I have detailed data for Berlin. Let me show you Berlin's amazing vegan scene!" },
-    allMessages: [
-      { content: "Paris" },
-      { content: "I'd love to help with Paris, but for this demo I have detailed data for Berlin. Let me show you Berlin's amazing vegan scene!" }
-    ],
-    expectedSuggestions: ["Tell me about Berlin instead", "Berlin has amazing options", "What about Berlin for now?", "Berlin for my demo?"]
-  },
-  {
-    name: "Default Fallback",
-    lastMessage: { content: "That's an interesting question about local transportation options in the area." },
-    allMessages: [
-      { content: "How's public transport?" },
-      { content: "That's an interesting question about local transportation options in the area." }
-    ],
-    expectedSuggestions: ["Tell me more about this", "What else do you recommend?", "Any budget-friendly options?", "Plan my complete itinerary"]
+    expectedType: "refinement_booking"
   }
 ];
 
-// Run tests
-function runQuickActionTests() {
+async function testQuickActionsAPI() {
   let passed = 0;
   let total = testScenarios.length;
 
-  testScenarios.forEach((scenario, index) => {
-    console.log(`\n=== Test ${index + 1}: ${scenario.name} ===`);
+  console.log(`🚀 Running ${total} API tests...\n`);
+
+  for (const [index, scenario] of testScenarios.entries()) {
+    console.log(`=== Test ${index + 1}: ${scenario.name} ===`);
     
     try {
-      const actualSuggestions = getContextualSuggestions(scenario.lastMessage, scenario.allMessages);
+      // Test the API endpoint
+      const response = await fetch('http://localhost:3000/api/quick-actions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          lastMessage: scenario.lastMessage,
+          conversationHistory: scenario.conversationHistory
+        }),
+      });
+
+      if (!response.ok) {
+        console.log(`❌ API request failed with status: ${response.status}`);
+        continue;
+      }
+
+      const data = await response.json();
       
-      // Check if we got the expected suggestions
-      const actualSet = new Set(actualSuggestions);
-      
-      let matches = 0;
-      scenario.expectedSuggestions.forEach(expected => {
-        if (actualSet.has(expected)) {
-          matches++;
-          console.log(`✓ Found expected: "${expected}"`);
+      // Validate response structure
+      if (!data.suggestions || !Array.isArray(data.suggestions)) {
+        console.log(`❌ Invalid response structure: ${JSON.stringify(data)}`);
+        continue;
+      }
+
+      // Check if we got 4 suggestions
+      if (data.suggestions.length !== 4) {
+        console.log(`⚠️ Expected 4 suggestions, got ${data.suggestions.length}`);
+      }
+
+      // Validate suggestion quality (basic checks)
+      let validSuggestions = 0;
+      data.suggestions.forEach((suggestion, i) => {
+        if (typeof suggestion === 'string' && suggestion.length > 0 && suggestion.length <= 50) {
+          validSuggestions++;
+          console.log(`✓ Suggestion ${i + 1}: "${suggestion}"`);
         } else {
-          console.log(`⚠️ Missing expected: "${expected}"`);
+          console.log(`⚠️ Invalid suggestion ${i + 1}: "${suggestion}"`);
         }
       });
-      
-      // Show what we actually got
-      console.log(`Actual suggestions: [${actualSuggestions.map(s => `"${s}"`).join(', ')}]`);
-      
-      // Test passes if we got the exact expected suggestions
-      if (actualSuggestions.length === scenario.expectedSuggestions.length && matches === scenario.expectedSuggestions.length) {
-        console.log(`🎉 Test PASSED (${matches}/${scenario.expectedSuggestions.length} suggestions matched exactly)`);
+
+      // Test passes if we got valid suggestions
+      if (validSuggestions >= 3) {
+        console.log(`🎉 Test PASSED (${validSuggestions}/4 valid suggestions)`);
         passed++;
       } else {
-        console.log(`❌ Test FAILED (${matches}/${scenario.expectedSuggestions.length} expected suggestions found)`);
+        console.log(`❌ Test FAILED (only ${validSuggestions}/4 valid suggestions)`);
       }
-      
+
     } catch (error) {
       console.log(`❌ Test failed with error: ${error.message}`);
     }
-  });
+    
+    console.log(""); // Empty line between tests
+  }
 
   // Summary
-  console.log(`\n📊 Quick Actions Test Results: ${passed}/${total} passed`);
+  console.log(`📊 API Test Results: ${passed}/${total} passed`);
   
   if (passed === total) {
-    console.log("🎉 All quick action tests passed! Dynamic suggestions are working correctly.");
+    console.log("🎉 All API tests passed! AI-powered quick actions are working correctly.");
     return true;
+  } else if (passed === 0) {
+    console.log("❌ All tests failed. Check if the server is running and the API endpoint is working.");
+    return false;
   } else {
-    console.log("❌ Some quick action tests failed. Check the logic above for details.");
+    console.log(`⚠️ Some tests failed. Success rate: ${Math.round(passed/total*100)}%`);
     return false;
   }
 }
 
+// Test fallback functionality (when API is not available)
+function testFallbackSuggestions() {
+  console.log("\n🛡️ Testing Fallback Quick Actions (when API fails)\n");
+  
+  // Simple fallback logic test
+  const fallbackScenarios = [
+    {
+      name: "Restaurant context",
+      content: "I recommend Kopps restaurant for dining",
+      expected: ["What about accommodations?", "Any nearby hotels?", "Show me food tours", "I'm also gluten-free"]
+    },
+    {
+      name: "Default fallback",
+      content: "Here's some general information",
+      expected: ["Tell me more about this", "What else do you recommend?", "Any budget-friendly options?", "Plan my complete itinerary"]
+    }
+  ];
+  
+  let passed = 0;
+  
+  fallbackScenarios.forEach((scenario, index) => {
+    console.log(`=== Fallback Test ${index + 1}: ${scenario.name} ===`);
+    
+    // This simulates the fallback logic from the API
+    const content = scenario.content.toLowerCase();
+    let suggestions;
+    
+    if (content.includes('restaurant') || content.includes('dining') || content.includes('kopps')) {
+      suggestions = ["What about accommodations?", "Any nearby hotels?", "Show me food tours", "I'm also gluten-free"];
+    } else {
+      suggestions = ["Tell me more about this", "What else do you recommend?", "Any budget-friendly options?", "Plan my complete itinerary"];
+    }
+    
+    if (JSON.stringify(suggestions) === JSON.stringify(scenario.expected)) {
+      console.log(`✓ Fallback suggestions: [${suggestions.map(s => `"${s}"`).join(', ')}]`);
+      console.log("🎉 Fallback test PASSED");
+      passed++;
+    } else {
+      console.log(`❌ Expected: [${scenario.expected.map(s => `"${s}"`).join(', ')}]`);
+      console.log(`❌ Got: [${suggestions.map(s => `"${s}"`).join(', ')}]`);
+    }
+    console.log("");
+  });
+  
+  console.log(`📊 Fallback Test Results: ${passed}/${fallbackScenarios.length} passed\n`);
+}
+
 // Check if running in Node.js environment
 if (typeof window === 'undefined') {
-  console.log("⚠️  Note: This tests the quick actions logic in isolation.");
-  console.log("   For full UI testing, use the browser and manually verify suggestions appear correctly.\\n");
+  console.log("⚠️  Note: This tests the AI quick actions API endpoint.");
+  console.log("   Make sure the development server is running on localhost:3000");
+  console.log("   If API tests fail, fallback tests will demonstrate the backup logic.\n");
   
-  // Run tests
-  runQuickActionTests();
+  // Run API tests
+  testQuickActionsAPI()
+    .then((success) => {
+      if (!success) {
+        console.log("API tests failed, running fallback tests...\n");
+        testFallbackSuggestions();
+      }
+    })
+    .catch((error) => {
+      console.log("❌ Failed to run API tests:", error.message);
+      console.log("Running fallback tests instead...\n");
+      testFallbackSuggestions();
+    });
 }

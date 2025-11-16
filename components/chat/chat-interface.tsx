@@ -39,6 +39,8 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
   
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [quickActionSuggestions, setQuickActionSuggestions] = useState<string[]>([])
+  const [welcomeActionsGenerated, setWelcomeActionsGenerated] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastUserMessageRef = useRef<HTMLDivElement>(null)
@@ -50,6 +52,14 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
       lastUserMessageRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
     }
   }, [messages])
+
+  // Initialize quick actions for welcome message on first load
+  useEffect(() => {
+    if (!welcomeActionsGenerated && messages.length === 1 && messages[0].role === 'assistant') {
+      generateQuickActions(messages[0], [])
+      setWelcomeActionsGenerated(true)
+    }
+  }, [messages, welcomeActionsGenerated]) // Include all dependencies but protect against loops
 
   const sendMessage = async (messageText?: string) => {
     const text = messageText || input.trim()
@@ -100,6 +110,9 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
       }
 
       setMessages(prev => [...prev, assistantMessage])
+      
+      // Generate AI-powered quick actions after assistant responds
+      generateQuickActions(assistantMessage, [...messages, userMessage])
     } catch (error) {
       console.error('Chat error:', error)
       const errorMessage: Message = {
@@ -111,6 +124,55 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
       setMessages(prev => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const generateQuickActions = async (lastMessage: Message, conversationHistory: Message[]) => {
+    try {
+      const response = await fetch('/api/quick-actions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          lastMessage: lastMessage,
+          conversationHistory: conversationHistory.slice(-5) // Send last 5 messages for context
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setQuickActionSuggestions(data.suggestions || [])
+      } else {
+        // Fallback to context-aware suggestions on API error
+        const content = lastMessage.content.toLowerCase()
+        let suggestions
+        
+        if (content.includes('which city') || content.includes('planning to visit')) {
+          suggestions = ["Berlin", "Paris", "Amsterdam", "Barcelona"]
+        } else if (content.includes('restaurant') || content.includes('dining')) {
+          suggestions = ["What about accommodations?", "Any nearby hotels?", "Show me food tours", "I'm also gluten-free"]
+        } else {
+          suggestions = ["Tell me more about this", "What else do you recommend?", "Any budget-friendly options?", "Plan my complete itinerary"]
+        }
+        
+        setQuickActionSuggestions(suggestions)
+      }
+    } catch (error) {
+      console.error('Quick actions error:', error)
+      // Fallback suggestions with context awareness
+      const content = lastMessage.content.toLowerCase()
+      let suggestions
+      
+      if (content.includes('which city') || content.includes('planning to visit')) {
+        suggestions = ["Berlin", "Paris", "Amsterdam", "Barcelona"]
+      } else if (content.includes('restaurant') || content.includes('dining')) {
+        suggestions = ["What about accommodations?", "Any nearby hotels?", "Show me food tours", "I'm also gluten-free"]
+      } else {
+        suggestions = ["Tell me more about this", "What else do you recommend?", "Any budget-friendly options?", "Plan my complete itinerary"]
+      }
+      
+      setQuickActionSuggestions(suggestions)
     }
   }
 
@@ -185,119 +247,6 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
     return role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'
   }
 
-  const getContextualSuggestions = (lastMessage: Message, allMessages: Message[]): string[] => {
-    const content = lastMessage.content.toLowerCase()
-    const conversationHistory = allMessages.slice(-4).map(m => m.content.toLowerCase()).join(' ')
-    
-    // After city acknowledged, asking for trip details (check first - more specific)
-    if (content.includes('berlin') && (content.includes('dates') || content.includes('when are you') || content.includes('when are you planning'))) {
-      return [
-        "I'm going next month",
-        "Planning a weekend trip",
-        "I need restaurants and hotels",
-        "What about food tours?"
-      ]
-    }
-    
-    // Welcome/initial city mention (should show city options)
-    if (content.includes('which city') || content.includes('planning to visit')) {
-      return [
-        "Berlin",
-        "Paris",
-        "Barcelona", 
-        "Amsterdam"
-      ]
-    }
-    
-    // Restaurant-focused responses
-    if (content.includes('kopps') || content.includes('restaurant') || content.includes('dining') || content.includes('€€€')) {
-      return [
-        "What about accommodations?",
-        "Any nearby hotels?",
-        "Show me food tours",
-        "I'm also gluten-free"
-      ]
-    }
-    
-    // Accommodation-focused responses  
-    if (content.includes('vegan hostel') || content.includes('check-in') || content.includes('accommodation') || content.includes('bedding')) {
-      return [
-        "What restaurants are nearby?",
-        "Any walking tours?",
-        "Show me local events",
-        "What's the nightlife like?"
-      ]
-    }
-    
-    // Tour-focused responses
-    if (content.includes('food tour') || content.includes('saturdays') || content.includes('hackescher markt') || content.includes('€65')) {
-      return [
-        "When should I book this?",
-        "What else is in that area?",
-        "Any evening tours?",
-        "Where should I stay nearby?"
-      ]
-    }
-    
-    // Event-focused responses
-    if (content.includes('vegan market') || content.includes('boxhagener platz') || content.includes('first saturday')) {
-      return [
-        "What time should I arrive?",
-        "Any restaurants near the market?",
-        "Where should I stay in that area?",
-        "Other events this weekend?"
-      ]
-    }
-    
-    // Multi-category or comprehensive responses
-    if (content.includes('safety score') && (content.includes('restaurant') && content.includes('accommodation'))) {
-      return [
-        "Plan my 3-day itinerary",
-        "What about tours and events?",
-        "Book everything for next month",
-        "Any hidden gems?"
-      ]
-    }
-    
-    // Logistics/booking focused (be more specific to avoid conflict with restaurant booking)
-    if ((content.includes('booking') || content.includes('reservation') || content.includes('advance notice')) && 
-        !content.includes('kopps') && !content.includes('restaurant') && !content.includes('dining')) {
-      return [
-        "Help me create an itinerary",
-        "What order should I book things?",
-        "Any group discounts?",
-        "What else should I know?"
-      ]
-    }
-    
-    // Dietary restrictions mentioned
-    if (conversationHistory.includes('gluten') || conversationHistory.includes('allerg') || conversationHistory.includes('celiac')) {
-      return [
-        "More allergy-friendly options?",
-        "What about cross-contamination?",
-        "Safe accommodations too?",
-        "Any specialized tours?"
-      ]
-    }
-    
-    // Non-Berlin cities (fallback for demo)
-    if (content.includes('paris') || content.includes('amsterdam') || content.includes('barcelona')) {
-      return [
-        "Tell me about Berlin instead",
-        "Berlin has amazing options",
-        "What about Berlin for now?",
-        "Berlin for my demo?"
-      ]
-    }
-    
-    // Default suggestions for other contexts
-    return [
-      "Tell me more about this",
-      "What else do you recommend?", 
-      "Any budget-friendly options?",
-      "Plan my complete itinerary"
-    ]
-  }
 
   return (
     <div className={`flex flex-col h-full max-w-4xl mx-auto ${className}`}>
@@ -355,13 +304,13 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
                 </div>
               </div>
               
-              {/* Quick actions after last assistant message */}
-              {isLastAssistantMessage && (
+              {/* AI-powered quick actions after last assistant message */}
+              {isLastAssistantMessage && quickActionSuggestions.length > 0 && (
                 <div className="mt-3 mb-4">
                   <div className="flex flex-wrap gap-2">
-                    {getContextualSuggestions(message, messages).map((suggestion) => (
+                    {quickActionSuggestions.map((suggestion, index) => (
                       <button
-                        key={suggestion}
+                        key={`${suggestion}-${index}`}
                         onClick={() => {
                           // Send message directly with the suggestion text
                           handleQuickActionClick(suggestion)
@@ -416,7 +365,7 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
                 sendMessage()
               }
             }}
-            placeholder="Ask me about vegan travel in Berlin... (Shift+Enter for new line)"
+            placeholder="Ask me about vegan travel anywhere... (Shift+Enter for new line)"
             className="flex-1 border border-gray-300 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent min-h-[40px] max-h-[120px]"
             disabled={isLoading}
             rows={1}
