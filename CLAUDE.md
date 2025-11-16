@@ -549,7 +549,7 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 
 **1. Restaurants (20)**
 
-- Source: HappyCow
+- Source: HappyCow, [Berlin Vegan](https://github.com/Berlin-Vegan/berlin-vegan-map/blob/master/angular/src/assets/GastroLocations.json) 
 - Reviews: Extract from Google Maps, HappyCow
 - Signals: Cross-contamination, staff knowledge, ingredient transparency
 
