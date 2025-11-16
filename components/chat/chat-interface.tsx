@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ReactMarkdown from "react-markdown";
+import UserPreferences, { type UserPreferences as UserPreferencesType } from "@/components/preferences/user-preferences";
 
 interface Message {
     id: string;
@@ -25,6 +26,7 @@ interface ChatInterfaceProps {
 
 export default function ChatInterface({ initialMessages = [], className }: ChatInterfaceProps) {
     const [messages, setMessages] = useState<Message[]>(initialMessages);
+    const [userPreferences, setUserPreferences] = useState<UserPreferencesType | null>(null);
 
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -265,18 +267,46 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
         <div className={`flex flex-col h-full max-w-4xl mx-auto ${className}`}>
             {/* Header */}
             <div className="border-b bg-white p-4">
-                <div className="flex items-center gap-3">
-                    <Avatar>
-                        <AvatarFallback className="bg-green-500 text-white">
-                            <Bot className="w-5 h-5" />
-                        </AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <h2 className="font-semibold text-lg">VeganBnB Travel Assistant</h2>
-                        <p className="text-sm text-gray-600">Your AI guide for complete vegan travel planning</p>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <Avatar>
+                            <AvatarFallback className="bg-green-500 text-white">
+                                <Bot className="w-5 h-5" />
+                            </AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <h2 className="font-semibold text-lg">VeganBnB Travel Assistant</h2>
+                            <p className="text-sm text-gray-600">Your AI guide for complete vegan travel planning</p>
+                        </div>
+                    </div>
+                    
+                    {/* Preferences Button with Status Indicator */}
+                    <div className="relative">
+                        <UserPreferences 
+                            onPreferencesChange={setUserPreferences}
+                        />
+                        {userPreferences && (
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full" 
+                                 title="Preferences saved" />
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Preferences Banner */}
+            {userPreferences && (
+                <div className="bg-green-50 border-b border-green-200 px-4 py-2">
+                    <div className="flex items-center justify-between text-sm">
+                        <span className="text-green-800">
+                            <strong>Preferences active:</strong> {userPreferences.budgetRange !== "any" && `${userPreferences.budgetRange} budget`}
+                            {userPreferences.budgetRange !== "any" && userPreferences.minSafetyScore > 70 && " • "}
+                            {userPreferences.minSafetyScore > 70 && `${userPreferences.minSafetyScore}+ safety score`}
+                            {userPreferences.dietaryRestrictions.length > 0 && ` • ${userPreferences.dietaryRestrictions.join(", ")}`}
+                        </span>
+                        <span className="text-green-600 text-xs">Personalizing recommendations</span>
+                    </div>
+                </div>
+            )}
 
             {/* Messages */}
             <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>

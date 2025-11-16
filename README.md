@@ -1,6 +1,6 @@
 # VeganBnB - AI-Powered Complete Vegan Travel Intelligence Platform
 
-**Team**: Tiff Ting (Lead/Frontend), Eitan (Frontend), Felix (Data Curation), Jean-Luc (Data Curation)
+**Team**: Tiff Ting (Lead/Full-Stack), Eitan (Persona Strategy), Felix (Data Curation)
 
 First AI-powered complete vegan travel intelligence platform providing explainable safety scores across restaurants, accommodations, tours, and events using multi-modal AI.
 
@@ -75,9 +75,9 @@ For detailed testing, troubleshooting, and code organization → see **[DEVELOPM
 
 ## Team
 
-**5-person distributed team** across India, Berlin, and Taiwan working on AI-powered vegan travel platform.
+**3-person team** developing AI-powered vegan travel intelligence platform with dual persona strategy.
 
-*See [CLAUDE.md](CLAUDE.md) for proposed task breakdown and team coordination.*  
+*See [CLAUDE.md](CLAUDE.md) for complete feature specifications and development roadmap.*  
 
 ## What We're Building
 
@@ -88,6 +88,6 @@ AI-powered vegan travel platform with category-adaptive review analysis, explain
 
 ## Documentation
 
-- **[CLAUDE.md](CLAUDE.md)** → Complete project specifications, AI prompts, team strategy
+- **[CLAUDE.md](CLAUDE.md)** → Complete project specifications, AI prompts, development strategy
 - **[DESIGN.md](DESIGN.md)** → UX strategy, visual language, component patterns  
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** → Technical setup, testing, troubleshooting, code organization

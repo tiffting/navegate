@@ -1,6 +1,6 @@
 ## VeganBnB - AI-Powered Complete Vegan Travel Intelligence Platform
 
-**Team**: Tiff Ting (Lead/Frontend, Taiwan), Eitan (Data Sourcing, Berlin), Felix (Data Sourcing, Berlin), Jean-Luc (Data Sourcing, Berlin)
+**Team**: Tiff Ting (Lead/Full-Stack, Taiwan), Eitan (Persona Strategy, Berlin), Felix (Data Curation, Berlin)
 
 ---
 
@@ -706,33 +706,25 @@ Format as structured JSON.
 
 ---
 
-### Current Team Focus _(Updated for Sunday development)_
+### Development Status _(Current Reality)_
 
-**Frontend Innovation Team (Tiff + Eitan)**:
+**Team Contributions**:
+- **Tiff**: Full-stack development, all technical implementation  
+- **Eitan**: Dual persona strategy (Planner vs Explorer), demo script development
+- **Felix**: Mock data expansion and curation across all categories
 
-**Tiff (Planner Persona)**:
+**✅ COMPLETED FEATURES**:
+- ✅ Smart Interview Process (AI discovers travel preferences) 
+- ✅ Enhanced User Preferences Panel (comprehensive settings with localStorage persistence)
+- ✅ OpenRouter AI Integration (reliable alternative to Gemini API)
+- ✅ Quick Actions System (contextual suggestions during interview)
+- ✅ Professional UI with real Berlin venue data
+- ✅ Complete RAG architecture with fallback responses
 
-- Calendar export functionality from chat recommendations
-- Itinerary builder with timeline visualization
-- Booking integration and trip execution tools
-- Mobile-responsive planning interface
-- ~~Listings pages (REMOVED - conflicts with persona strategy)~~
-
-**Eitan (Explorer Persona + User Preferences)**:
-
-- Interactive map with venue markers and safety scores
-- Smart filtering interface (price, safety threshold, distance, hours)
-- Click venue markers for instant safety analysis details
-- **Persistent user preferences system** (budget, safety score, dietary restrictions)
-- Mobile-responsive exploration interface (no chat integration needed)
-
-**Data Curation Team (Jean-Luc + Felix - Berlin)**:
-
-- Expand Berlin mock data across all 4 categories
-- Document data sourcing methodology and standards
-- Research and curate high-quality venue data with reviews
-- Create data collection templates for future programmatic sourcing
-- Validate existing mock data accuracy and completeness
+**📋 REMAINING FEATURES** (Future Development):
+- **Calendar Export**: Parse chat recommendations into .ics files for trip execution
+- **Interactive Map**: Visual venue discovery with safety score markers and filtering
+- **Advanced Preferences**: Auto-apply user settings to recommendations
 
 **COMPLETED FOUNDATION**:
 
@@ -757,31 +749,23 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 3. Install: Node.js 18+, pnpm/npm
 4. Add API keys to .env.local
 
-**Prudhvi + Tiff:**
+**Data Preparation (Completed by Felix + Tiff):**
 
 1. **Multi-category dataset**:
-    - 20 restaurants (HappyCow + Google reviews)
-    - 10 accommodations (Vegvisits, Booking.com)
-    - Each with 3-5 review excerpts
-2. Test Gemini API with 2 listings per category (validate category-adaptive prompts work) ✅
+    - 20+ restaurants (HappyCow + Google reviews)
+    - 10+ accommodations (Vegvisits, Booking.com)
+    - 5+ tours and events with review excerpts
+2. All venue data includes complete logistics information ✅
 
-**Harshini + Tiff:**
+**Technical Setup (Completed by Tiff):**
 
-1. **Events & Tours dataset**:
-    - 5 tours (manual curation)
-    - 5 events (Eventbrite, Facebook Events)
-    - Each with 3-5 review/testimonial excerpts
-
-**Tiff:**
-
-1. Wireframes (6 screens: home with categories, multi-category list, detail views per category, AI explanation modal, chatbot, menu upload)
-2. GitHub repo + Next.js boilerplate with category structure ✅
-3. Curate 2 German menu photos for translator demo
-4. Test GPT-4 Vision API (1 menu photo)
+1. GitHub repo + Next.js boilerplate with category structure ✅
+2. OpenRouter AI integration with fallback system ✅  
+3. Smart interview process with preferences ✅
+4. Professional chat interface with quick actions ✅
 5. Estimate API costs (should be <$10 for demo) ✅
 6. Share setup instructions ✅
 
-**Koray**: Review tech stack (Next.js + Firebase + Gemini), Shadcn Chat docs, UI patterns
 
 ---
 
@@ -850,7 +834,7 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 - Addresses millions of vegan travelers globally
 - Solves real pain point (juggling multiple sources) + **logistics coordination**
 - First complete vegan travel platform (beyond just discovery)
-- Authentic founder story (Prudhvi "lives this daily", and Tiff does this for trips multiple times a year)
+- Authentic founder story (team members live this daily - Tiff does this for trips multiple times a year)
 - **Monetization lever**: Actionable intelligence justifies premium pricing vs discovery-only tools
 
 **Innovation** (Technical judges):
