@@ -1,6 +1,6 @@
 ## VeganBnB - AI-Powered Complete Vegan Travel Intelligence Platform
 
-**Team**: Prudhvi Raj (Lead, India), Koray Akalin (Berlin), Dhruthi Keerthi (Berlin), Harshini Madhu (India), Tiff Ting (Taiwan)
+**Team**: Tiff Ting (Lead/Frontend, Taiwan), Eitan (Data Sourcing, Berlin), Felix (Data Sourcing, Berlin), Jean-Luc (Data Sourcing, Berlin)
 
 ---
 
@@ -518,22 +518,29 @@ Format as structured JSON.
 
 ---
 
-### Proposed Task Breakdown _(to discuss with team)_
+### Current Team Focus _(Updated for Sunday development)_
 
-**Prudhvi (Lead)**: API routes, Gemini integration, safety scores ✅
-**Koray**: AI chatbot UI ✅, multi-category views, map integration
-**Dhruthi**: Detail views, score explanation modals, auth UI
-**Harshini**: Dataset prep (tours/events), UI components (computer vision moved to TIER 2)
-**Tiff**: Design system ✅, wireframes, dataset coordination, Firebase setup ✅, TypeScript interfaces ✅, Category analyzer ✅, AI Travel Assistant Chatbot ✅
+**Tiff (Lead/Frontend)**:
+- Frontend polish and user experience improvements
+- Listings UI pages with safety score displays
+- Mobile responsiveness and design enhancements
+- User testing and UX optimization
 
-**COMPLETED MAJOR MILESTONES**:
+**Eitan, Felix, Jean-Luc (Data Sourcing Team - Berlin)**:
+- Transition from mock data to external data sources
+- API integrations (HappyCow, Google Places, TripAdvisor, etc.)
+- Data scraping and validation pipelines
+- Real-time availability and pricing integration
+- Leverage organizer-provided APIs (ScrapingDog, OpenRouter, etc.)
 
+**COMPLETED FOUNDATION**:
 - ✅ Category-adaptive analyzer (hero feature)
-- ✅ AI Travel Assistant Chatbot (showstopper feature)
-- ✅ Professional landing page + chat UI
-- ✅ Complete RAG architecture with human-readable safety signals
+- ✅ AI Travel Assistant Chatbot (showstopper feature)  
+- ✅ AI-powered quick actions with contextual suggestions
+- ✅ Professional UI with real Berlin venue data
+- ✅ Complete RAG architecture ready for live data integration
 
-_Note: These are initial suggestions based on stated interests/locations. Final assignments to be determined as a team._
+**SUNDAY DEVELOPMENT PLAN**: Data team focuses on external integrations while frontend team polishes user experience - parallel development with feature branches.
 
 _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 

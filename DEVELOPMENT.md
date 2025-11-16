@@ -129,11 +129,39 @@ const mockData = { ... }
 ## Reference
 
 **Documentation**: [README.md](README.md) | [CLAUDE.md](CLAUDE.md) | [DESIGN.md](DESIGN.md)
-**Next Steps**: ✅ ~~Chatbot integration~~ → ✅ ~~**Actionable logistics complete**~~ → ✅ ~~**AI-powered quick actions**~~ → Basic listing UI → Deploy → Demo prep (PRODUCTION READY!)
+**Next Steps**: ✅ ~~Chatbot integration~~ → ✅ ~~**Actionable logistics complete**~~ → ✅ ~~**AI-powered quick actions**~~ → **External data sourcing** (Eitan/Felix/Jean-Luc) + **Frontend polish** (Tiff) → Deploy → Demo prep (PRODUCTION READY!)
 
 **DEMO-CRITICAL COMPLETED**: ✅ Enhanced mock data + chatbot responses with actionable logistics (hours, schedules, eSIM-friendly booking) + AI-powered contextual quick actions
 
 **TECHNICAL IMPLEMENTATION**: Hybrid architecture complete - stable data stored locally with comprehensive logistics fields
+
+## Data Sourcing Team Guide (Eitan, Felix, Jean-Luc)
+
+### **Available APIs from Organizers**
+- **ScrapingDog**: Web scraping for reviews and venue details  
+- **OpenRouter**: Access to multiple LLM models for data processing
+- **Potentially**: Google Places API, other APIs Sam can provide
+
+### **Target Data Sources**
+- **HappyCow**: Restaurant data and reviews
+- **Google Places**: Hours, contact info, basic details
+- **TripAdvisor**: Tour and accommodation reviews  
+- **Booking.com/Airbnb**: Accommodation availability and pricing
+- **Eventbrite/Facebook Events**: Event listings and schedules
+
+### **Integration Points**
+- **Current mock data** in `lib/mock-data.js` - shows expected data structure
+- **API routes** in `app/api/` - modify to fetch live data instead of mock
+- **Safety score analyzer** in `app/api/analyze/route.js` - ready for real reviews
+- **Database schema** - Firebase Firestore already set up for live data
+
+### **Development Workflow**  
+```bash
+git checkout -b feature/external-data-sources
+# Work on data integrations
+# Test with small datasets first
+# Merge back to main when stable
+```
 
 **ACTIONABLE LOGISTICS FEATURES**:
 - ✅ eSIM-friendly booking methods (online/email priority, no phone required)

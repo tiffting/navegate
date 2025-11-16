@@ -1,6 +1,6 @@
 # VeganBnB - AI-Powered Complete Vegan Travel Intelligence Platform
 
-**Team**: Prudhvi Raj (Lead), Koray Akalin, Dhruthi Keerthi, Harshini Madhu, Tiff Ting
+**Team**: Tiff Ting (Lead/Frontend), Eitan (Data Sourcing), Felix (Data Sourcing), Jean-Luc (Data Sourcing)
 
 First AI-powered complete vegan travel intelligence platform providing explainable safety scores across restaurants, accommodations, tours, and events using multi-modal AI.
 
