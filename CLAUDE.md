@@ -92,10 +92,11 @@ This ensures documentation stays current across all AI sessions.
 
 **Solution Features (Tiff implementing):**
 
-- **Calendar Export**: Generate Google Calendar events from chat recommendations
-- **Itinerary Builder**: Convert chat recommendations to structured daily plans
-- **Booking Integration**: Direct links to reservation systems with pre-filled details
-- **Trip Timeline**: Visual timeline view of planned activities
+- **Smart Interview Process**: AI discovers travel style through strategic questions (dates, eating habits, mobility, budget)
+- **Calendar Export**: Generate .ics files from complete daily itineraries with emojis and transit events
+- **Intelligent Scheduling**: AI suggests realistic timing with geographic clustering and transit logistics
+- **Preference Persistence**: Auto-save user preferences during chat for future trip planning
+- **Complete Daily Orchestration**: Breakfast, lunch, dinner, activities, accommodation, and transit in proper sequence
 
 ### **Persona 2: The Explorer (Eitan's Travel Style)**
 
@@ -164,6 +165,29 @@ interface UserPreferences {
     dietaryRestrictions: string[]; // ["gluten-free", "nut-free"]
     maxDistance: number; // km radius for map
     openNow: boolean; // filter for currently open venues
+    
+    // NEW: Enhanced travel preferences
+    eatingPreferences: {
+        includeBreakfast: boolean;
+        includeSnacks: boolean;  
+        style: "foodie" | "casual" | "efficient";
+        preferredMealTimes?: {
+            breakfast?: string;  // "8:00"
+            lunch?: string;     // "12:30" 
+            dinner?: string;    // "19:00"
+        };
+    };
+    mobilityPreferences: {
+        transportModes: ("walking" | "public_transit" | "taxi")[];
+        wheelchairAccessible: boolean;
+        maxWalkingDistance: number; // minutes
+        preferredPace: "leisurely" | "moderate" | "efficient";
+    };
+    tripPreferences: {
+        planningStyle: "structured" | "flexible";
+        groupSize?: number;
+        travelDates?: { start: string; end: string; };
+    };
 }
 ```
 
@@ -191,6 +215,44 @@ interface UserPreferences {
 - **TAM Expansion**: Addresses different travel behaviors (not just vegan vs non-vegan)
 - **Competitive Moat**: No travel app currently adapts interface to travel personality
 - **Viral Potential**: "Which type of traveler are you?" social media angle
+
+### **Post-MVP Geographic Intelligence Vision**
+
+**Smart Trip Optimization Features** (Future Development):
+
+**Geographic Clustering**:
+- **Area-based recommendations**: "Since you're doing the food tour in Kreuzberg, here are nearby dinner options"
+- **Transit optimization**: Minimize cross-city travel with intelligent venue sequencing
+- **Neighborhood expertise**: "Perfect for a Mitte food crawl" or "Complete your Friedrichshain day"
+
+**Advanced Transit Integration**:
+- **Real-time transit API**: Live Berlin public transport schedules and delays
+- **Accessibility routing**: Wheelchair-friendly paths and station access
+- **Multi-modal planning**: Walking + U-Bahn + S-Bahn optimal combinations
+- **Weather-aware routing**: Indoor alternatives for rainy days
+
+**Intelligent Scheduling**:
+- **Venue clustering algorithms**: Group nearby venues to reduce travel time
+- **Opening hours optimization**: Never suggest closed venues
+- **Crowd prediction**: Avoid peak times at popular spots
+- **Seasonal adjustments**: Outdoor vs indoor venue preferences
+
+**Enhanced User Preferences**:
+- **Mobility profiles**: Wheelchair accessible, limited walking, public transit only
+- **Pace preferences**: Leisurely explorer vs efficient sightseeer
+- **Group dynamics**: Solo travel vs couples vs families
+- **Cultural interests**: Food-focused vs attraction-focused vs event-focused
+
+**Technical Implementation**:
+- **Berlin Transit API**: Integration with BVG real-time data
+- **Google Maps API**: Walking times and accessibility data  
+- **Venue capacity prediction**: Popular times and crowd management
+- **Weather API integration**: Adaptive recommendations
+
+**Business Impact**:
+- **Differentiation**: No travel app offers this level of geographic intelligence
+- **User stickiness**: Complex trips require sophisticated planning tools
+- **Premium tier**: Advanced routing and real-time features justify higher pricing
 
 ---
 
