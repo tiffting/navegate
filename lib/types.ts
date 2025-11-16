@@ -28,10 +28,147 @@ export interface Listing {
   };
   website?: string;
   bookingUrl?: string;
+  logistics?: ListingLogistics;
   reviews: string[]; // Array of review excerpts
   safetyScore?: SafetyScore;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// ============================================================================
+// LOGISTICS TYPES (Actionable Travel Information)
+// ============================================================================
+
+/**
+ * Actionable logistics information for trip planning
+ * Designed for international travelers (eSIM users, language barriers)
+ */
+export type ListingLogistics = 
+  | RestaurantLogistics 
+  | AccommodationLogistics 
+  | TourLogistics 
+  | EventLogistics;
+
+export interface RestaurantLogistics {
+  hours: OperatingHours;
+  booking: {
+    required: boolean;
+    methods: BookingMethod[];
+    advance_notice?: string;
+  };
+  pricing: {
+    range: string; // €€€ format
+    average_meal: string;
+    note?: string;
+  };
+  accessibility: AccessibilityInfo;
+}
+
+export interface AccommodationLogistics {
+  check_in: {
+    time: string;
+    late_arrival?: string;
+    methods: string[];
+  };
+  check_out: string;
+  breakfast?: {
+    time: string;
+    price: string;
+    note?: string;
+  };
+  booking: {
+    methods: BookingMethod[];
+    cancellation: string;
+  };
+  pricing: {
+    range: string;
+    dorm_bed?: string;
+    private_room?: string;
+    standard_room?: string;
+    note?: string;
+  };
+  facilities?: {
+    kitchen_hours?: string;
+    common_areas?: string;
+    wifi?: string;
+    concierge?: string;
+    room_service?: string;
+  };
+}
+
+export interface TourLogistics {
+  schedule: {
+    days: string;
+    time: string;
+    duration: string;
+    meeting_point: string;
+  };
+  booking: {
+    required: boolean;
+    methods: BookingMethod[];
+    advance_notice: string;
+    cancellation: string;
+  };
+  pricing: {
+    adult: string;
+    student?: string;
+    includes: string;
+    note?: string;
+  };
+  accessibility: AccessibilityInfo & {
+    walking_distance?: string;
+  };
+  what_to_bring?: string[];
+}
+
+export interface EventLogistics {
+  schedule: {
+    frequency: string;
+    time: string;
+    setup?: string;
+    weather?: string;
+  };
+  next_dates?: string[];
+  entry: {
+    cost: string;
+    no_booking_required?: boolean;
+  };
+  location_details: {
+    address: string;
+    nearest_transit: string;
+    parking?: string;
+  };
+  vendor_info?: {
+    count: string;
+    payment: string;
+    languages: string;
+  };
+  accessibility: AccessibilityInfo & {
+    facilities?: string;
+  };
+}
+
+export interface OperatingHours {
+  monday: string;
+  tuesday: string;
+  wednesday: string;
+  thursday: string;
+  friday: string;
+  saturday: string;
+  sunday: string;
+}
+
+export interface BookingMethod {
+  type: 'online' | 'email' | 'phone' | 'walk-in' | 'booking_platforms';
+  url?: string;
+  contact?: string;
+  platforms?: string[];
+  note?: string;
+}
+
+export interface AccessibilityInfo {
+  wheelchair: boolean | string;
+  dietary_accommodations: string[];
 }
 
 // ============================================================================

@@ -19,7 +19,7 @@ This ensures documentation stays current across all AI sessions.
 
 ## Current Project State (IMPORTANT: Update this as you go for cross-session continuity)
 
-**Last Updated**: Nov 15, 2025 11:45pm CET (Complete chatbot + UX strategy + documentation refactor)
+**Last Updated**: Nov 16, 2025 9:30am CET (Enhanced UX + Real venue data - DEMO READY!)
 
 **What's Implemented**:
 
@@ -30,11 +30,19 @@ This ensures documentation stays current across all AI sessions.
 - ✅ TypeScript interfaces complete (`lib/types.ts` with all core types)
 - ✅ Category-adaptive analyzer complete (API + prompts + validation + testing)
 - ✅ **AI Travel Assistant Chatbot complete** (RAG + multi-category context + markdown rendering)
-- ✅ Demo-ready mock data (`lib/mock-data.js` with realistic safety scores)
+- ✅ **CRITICAL: Actionable logistics implementation complete** (eSIM-friendly booking, pricing, schedules)
+- ✅ Demo-ready mock data (`lib/mock-data.js` with complete operational details)
 - ✅ Professional UI: Landing page + chat interface (shadcn/ui + Tailwind CSS)
 - ✅ Working test files: `tests/test-gemini.js`, `tests/test-firebase.js`, `tests/test-analyzer.js`, `tests/test-chatbot.js`
 - ✅ Human-readable safety signal formatting
-- ✅ Documentation: README.md, DEVELOPMENT.md, CLAUDE.md
+- ✅ **Enhanced TypeScript interfaces** (`lib/types.ts` with complete logistics types)
+- ✅ **Real venue data**: All venues are actual Berlin locations with working websites
+- ✅ **Dynamic quick actions**: Context-aware suggestions that adapt to conversation flow
+- ✅ **Auto-submit UX**: Quick actions send messages immediately (standard chat UX)
+- ✅ **Clickable links**: Markdown links open in new tabs with proper security
+- ✅ **Accurate date context**: AI knows current year for proper trip planning
+- ✅ **Multiline input**: Textarea with auto-resize for detailed user messages
+- ✅ Documentation: README.md, DEVELOPMENT.md, CLAUDE.md, DESIGN.md
 - ✅ Environment: `.env.local` with API keys
 
 **Technical Setup**: See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed setup, file structure, testing, and team coordination.
@@ -46,15 +54,19 @@ This ensures documentation stays current across all AI sessions.
 - Development pattern: Types → Mock data → UI → Real API
 - API cost: ~$0.80 for demo
 
-**Next Priority Tasks** (7-hour timeline):
+**Next Priority Tasks** (REMAINING for demo):
 
 1. ✅ ~~Firebase project setup~~
 2. ✅ ~~Create core TypeScript interfaces~~
 3. ✅ ~~**CRITICAL**: Implement category-adaptive review analysis (hero feature)~~
 4. ✅ ~~**CRITICAL**: Build chatbot with multi-category context~~
-5. **NEW PRIORITY**: Basic UI with safety score display (listings pages)
-6. Deploy + demo preparation
-7. **OPTIONAL**: Computer vision menu translator (TIER 2 feature)
+5. ✅ ~~**URGENT**: Enhance chatbot with actionable logistics (hours, booking, scheduling)~~
+6. ✅ ~~**UX POLISH**: Dynamic quick actions, auto-submit, real venue data, multiline input~~
+7. **FINAL PRIORITY**: Basic UI with safety score display (listings pages)
+8. Deploy + demo preparation
+9. **OPTIONAL**: Computer vision menu translator (TIER 2 feature)
+
+**DEMO GAP RESOLVED**: ✅ Chatbot now provides actionable trip planning with eSIM-friendly booking methods and complete operational logistics
 
 ---
 
@@ -69,7 +81,8 @@ This ensures documentation stays current across all AI sessions.
 - Complete travel coverage (not just restaurants)
 - Explainable AI with review citations
 - Multi-modal technology
-- Conversational trip planning
+- **Actionable trip planning** with eSIM-friendly booking methods
+- **Complete operational logistics** (hours, pricing, schedules, transit)
 
 ---
 
@@ -80,30 +93,36 @@ This ensures documentation stays current across all AI sessions.
 **Why this is our largest TAM:**
 
 **Market size:**
-- Global vegans: 79M+ 
+
+- Global vegans: 79M+
 - Travel 2+ times/year: ~40% = **31M addressable users**
 - Growing 20-25% annually in key markets
 
 **Pain severity:**
+
 - Confident enough to travel but still face cobbling friction (HappyCow + Vegvisits + Google + Reddit)
 - Highest willingness to pay ($5-15/month for complete solution)
 - Active social media sharers (organic growth multiplier)
 
 **Competition gap:**
+
 - HappyCow: restaurants only
 - Vegvisits: accommodations only
 - **No complete solution exists = blue ocean opportunity**
 
 **MVP validation target:**
+
 - Europe focus: 1M potential users (Germany 500K)
 - Proof of concept → global expansion pitch
 
 **Secondary personas** (TAM expansion opportunities):
+
 - Non-vegans exploring plant-based (3x market size potential)
 - Business travelers (premium pricing tier)
 - New vegans (onboarding funnel from advocacy orgs)
 
 **Revenue potential:**
+
 - 31M × $8/month avg × 5% conversion rate = **$148M TAM**
 - Realistic Year 1 goal: 10K users × $8/month = $960K ARR
 
@@ -139,31 +158,36 @@ This ensures documentation stays current across all AI sessions.
 
 **Current State**: Chatbot provides safety-focused recommendations but lacks logistics for actual trip execution.
 
-**Example Gap**: 
-- ✅ Current: "I recommend Berlin Vegan Market (91/100 safety score) for excellent food quality"
-- ❌ Missing: "Berlin Vegan Market happens first Saturday of each month, 10am-6pm at Boxhagener Platz"
+**Example Gap**:
+
+- ✅ Current: "I recommend The Green Market Berlin (91/100 safety score) for excellent food quality"
+- ❌ Missing: "The Green Market Berlin happens regularly at Boxhagener Platz, 10am-6pm with diverse vegan vendors"
 
 **Essential Logistics Data Needed**:
 
 **For Restaurants**:
+
 - Operating hours (daily schedules + seasonal changes)
 - Reservation requirements/policies
 - Price ranges and payment methods
 - Location details (exact address + nearest transit)
 
 **For Accommodations**:
+
 - Availability calendars and booking links
 - Check-in/check-out procedures
 - Amenity access hours (kitchen, breakfast times)
 - Cancellation policies
 
 **For Tours**:
+
 - Scheduled dates and duration
 - Meeting points and logistics
 - Booking requirements and group sizes
 - Weather-dependent scheduling
 
 **For Events**:
+
 - Recurring schedules (weekly/monthly patterns)
 - Ticket availability and pricing
 - Venue capacity and accessibility
@@ -172,21 +196,61 @@ This ensures documentation stays current across all AI sessions.
 **Implementation Strategy**:
 
 **Phase 1 - Data Enhancement** (Post-hackathon priority):
+
 - Expand `lib/types.ts` with logistics fields
 - Update mock data with realistic schedules
 - Enhance database schema for operational details
 
 **Phase 2 - Smart Scheduling**:
+
 - AI understands time constraints ("3-day trip")
 - Suggests realistic daily itineraries with travel time
 - Flags scheduling conflicts and availability issues
 
 **Phase 3 - Live Integration**:
+
 - Real-time availability APIs (Google Places, booking platforms)
 - Calendar integration for personal trip planning
 - Smart notifications for schedule changes
 
 **Business Impact**: This transforms VeganBnB from "discovery tool" to "complete travel assistant" - justifying premium pricing and increasing user stickiness.
+
+### Post-Hackathon Vision: Beyond Vegan-Only Content
+
+**Key Market Insight**: Vegans are multidimensional travelers interested in art, history, culture, architecture, fitness, wellness, and all aspects of travel - not just vegan-specific venues.
+
+**Expansion Opportunity**:
+
+- **Current MVP**: Vegan-focused restaurants, accommodations, tours, events (essential foundation)
+- **Future Vision**: Comprehensive travel assistant that happens to excel at vegan needs
+    - Museums & galleries with vegan cafes
+    - Historical sites with nearby plant-based dining
+    - Architecture tours that accommodate dietary needs
+    - Wellness retreats and fitness activities
+    - Cultural experiences with inclusive food options
+    - Local neighborhoods with strong vegan infrastructure
+
+**Competitive Advantage**:
+
+- Start with underserved vegan niche (defensive moat)
+- Expand to general travel while maintaining vegan expertise
+- Unlike generic travel apps, we understand dietary intersection with all travel categories
+
+**Data Strategy for Expansion** (Future Investigation):
+
+- Partner with mainstream travel APIs (TripAdvisor, Google Places)
+- Overlay vegan-accessibility scores on general attractions
+- Community-sourced accessibility ratings for non-food venues
+- AI analysis: "This museum has a great vegan cafe" or "Walking distance to 3 vegan restaurants"
+
+**Demo Script Addition**:
+"While we're starting with vegan-specific venues, our vision extends beyond that. Vegans are interested in art, culture, history - everything travelers love. We see VeganBnB expanding to cover all travel categories while maintaining our expertise in dietary accessibility. Think: 'This museum has excellent vegan dining nearby' or 'This architectural walking tour accommodates all dietary needs.'"
+
+**Market Sizing Impact**:
+
+- **Phase 1**: 79M vegans globally (current TAM)
+- **Phase 2**: 850M+ conscious travelers who value inclusive experiences
+- **Unique positioning**: The travel app that truly understands dietary accessibility across ALL experiences
 
 ### Data Architecture Strategy: Store vs Fetch
 
@@ -195,64 +259,72 @@ This ensures documentation stays current across all AI sessions.
 **Hybrid Approach** (Recommended):
 
 **STORE LOCALLY** (Performance + Reliability):
+
 - **Basic hours** (restaurants, shops) - Changes infrequently, critical for trip planning
 - **Recurring events** (weekly markets, monthly meetups) - Predictable patterns
 - **Price ranges** - Rough estimates sufficient, changes slowly
 - **Contact/booking info** - Relatively stable
 
 **FETCH REAL-TIME** (Accuracy Critical):
+
 - **Current availability** (hotel rooms, tour spots) - High volatility
-- **Special closures** (holidays, maintenance) - Unpredictable changes  
+- **Special closures** (holidays, maintenance) - Unpredictable changes
 - **Live pricing** (dynamic pricing models) - Constant fluctuation
 - **Event cancellations** - Critical accuracy for user experience
 
 **Update Strategy by Category**:
 
-**Restaurants**: 
+**Restaurants**:
+
 - Store: Basic hours, contact info, price range
 - Fetch: Holiday closures, special events, current wait times (if available)
 - Update frequency: Monthly batch updates + real-time closure checks
 
 **Accommodations**:
+
 - Store: Check-in policies, amenity hours, contact info
 - Fetch: Room availability, current pricing, booking links
 - Update frequency: Real-time for availability, weekly for policies
 
 **Tours**:
+
 - Store: General schedules, meeting points, booking requirements
 - Fetch: Available dates, current pricing, capacity status
 - Update frequency: Real-time for bookings, monthly for logistics
 
 **Events**:
+
 - Store: Recurring patterns, venue info, typical pricing
 - Fetch: Specific dates, ticket availability, last-minute changes
 - Update frequency: Real-time for tickets, weekly for schedules
 
 **Technical Implementation**:
+
 ```typescript
 interface Listing {
-  // Stored locally (cached)
-  basicInfo: {
-    hours: OperatingHours;
-    contact: ContactInfo;
-    priceRange: string;
-  };
-  
-  // Fetched real-time
-  liveData: {
-    availability?: AvailabilityStatus;
-    currentPricing?: PricingInfo;
-    specialNotices?: string[];
-  };
-  
-  lastUpdated: {
-    basicInfo: Date;
-    liveData: Date;
-  };
+    // Stored locally (cached)
+    basicInfo: {
+        hours: OperatingHours;
+        contact: ContactInfo;
+        priceRange: string;
+    };
+
+    // Fetched real-time
+    liveData: {
+        availability?: AvailabilityStatus;
+        currentPricing?: PricingInfo;
+        specialNotices?: string[];
+    };
+
+    lastUpdated: {
+        basicInfo: Date;
+        liveData: Date;
+    };
 }
 ```
 
 **Business Benefits**:
+
 - **Fast UX**: Instant basic info from local storage
 - **Accurate planning**: Real-time availability prevents disappointment
 - **Cost efficiency**: Minimize expensive API calls for stable data
@@ -265,6 +337,7 @@ interface Listing {
 **Complete UX strategy, visual language, and component patterns** → See **[DESIGN.md](DESIGN.md)**
 
 **Key Design Principles** (derived from target persona):
+
 - **Safety-first information hierarchy**: Scores prominent, explanations accessible
 - **Efficiency over education**: Minimal clicks, unified multi-category interface
 - **Premium aesthetic**: Professional polish justifying $5-15/month pricing
@@ -315,6 +388,7 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 **Each listing needs**: Name, address/location, category, description, website/booking link, 3-5 review excerpts
 
 **IDENTIFIED ENHANCEMENT** (Post-hackathon): Add operational logistics to make recommendations actionable:
+
 - **Hours/schedules** (essential for trip planning)
 - **Booking requirements** (reservations, tickets, availability)
 - **Pricing information** (budget planning)
@@ -534,14 +608,15 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 
 - Switch to chat interface
 - **Live demo**: "Plan my 3-day vegan trip to Berlin"
-- AI responds with:
-    - 2 accommodation recommendations
-    - 4 restaurant suggestions (breakfast, lunch, dinner options)
-    - 1 walking tour
-    - 1 weekend event
-- Follow-up: "Which hotel has the best vegan breakfast?"
-- Shows contextual understanding across categories
-- "No more juggling. One conversation. Complete trip."
+- AI responds with ACTIONABLE recommendations:
+    - A&O Berlin Mitte (78/100) - "Check-in 3pm, vegan breakfast available upon request"
+    - Kopps restaurant (98/100) - "Open Wed-Sat from 5:30pm, reservations required"
+    - Berlin Vegan Food Tour (94/100) - "Saturdays 2-6pm, meet at Hackescher Markt"
+    - The Green Market Berlin (91/100) - "Regular vegan market with diverse vendors"
+- Follow-up: "What time should I book dinner at Kopps on Saturday?"
+- AI responds: "Book online at kopps-berlin.de/reservation (English available) - no phone needed!"
+- Shows contextual understanding + practical trip execution for international travelers
+- **"This is complete trip intelligence - not just discovery, but actionable planning designed for eSIM users"**
 
 **4:00-4:45 | Market Opportunity & Innovation**
 
@@ -550,7 +625,8 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 - "**Technical moat**: Multi-modal AI with category-adaptive analysis"
 - "**Viral growth**: Our target persona are active social media sharers"
 - "**Proof of concept**: 40 listings today, any city tomorrow"
-- "**Expansion ready**: 3x TAM with non-vegan plant-based explorers"
+- "**Beyond vegan-only**: Vegans love art, culture, history - everything! Our expansion vision covers ALL travel while maintaining dietary expertise"
+- "**Expansion ready**: 850M+ conscious travelers who value inclusive experiences (11x current TAM)"
 - "$2,000 funding goal: 5 cities (1,000 listings), mobile app, booking integration → $960K ARR Year 1"
 
 **4:45-5:00 | Q&A**

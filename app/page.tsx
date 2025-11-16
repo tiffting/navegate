@@ -70,7 +70,7 @@ export default function Home() {
             </div>
             <h3 className="font-semibold text-gray-900 mb-2">Accommodations</h3>
             <p className="text-gray-600 text-sm">Kitchen safety, vegan breakfast, bedding materials, host knowledge</p>
-            <div className="mt-3 text-sm text-green-600 font-medium">2 listings • 48-96 safety scores</div>
+            <div className="mt-3 text-sm text-green-600 font-medium">3 listings • 48-84 safety scores</div>
           </div>
 
           <div className="bg-white rounded-lg p-6 shadow-sm border">
@@ -104,16 +104,16 @@ export default function Home() {
               <h4 className="font-semibold text-gray-900 mb-3">Sample Questions:</h4>
               <div className="space-y-2">
                 <div className="bg-gray-50 rounded-lg p-3 text-sm">
-                  &quot;Plan my 3-day vegan trip to Berlin&quot;
+                  &quot;Berlin&quot;
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3 text-sm">
-                  &quot;I&apos;m celiac and vegan, need safe dining options&quot;
+                  &quot;I&apos;m planning to visit Amsterdam&quot;
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3 text-sm">
-                  &quot;What vegan accommodation has the best breakfast?&quot;
+                  &quot;What about Barcelona?&quot;
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3 text-sm">
-                  &quot;Show me tours with high safety scores&quot;
+                  &quot;I&apos;m going to Berlin next month&quot;
                 </div>
               </div>
             </div>

@@ -6,8 +6,8 @@ dotenv.config({ path: ".env.local" });
 const testConversations = [
   {
     name: "Trip Planning",
-    message: "Plan my 3-day vegan trip to Berlin",
-    expectedElements: ["accommodation", "restaurant", "safety score", "Kopps", "Vegan Hostel"]
+    message: "Berlin",
+    expectedElements: ["Berlin", "When are you", "dates", "visit", "planning"]
   },
   {
     name: "Restaurant Query", 
@@ -17,12 +17,12 @@ const testConversations = [
   {
     name: "Accommodation Query",
     message: "I need vegan accommodation with good breakfast options",
-    expectedElements: ["Vegan Hostel", "breakfast", "96", "kitchen"]
+    expectedElements: ["A&O Berlin", "breakfast", "78", "vegan options"]
   },
   {
     name: "Activity Planning",
     message: "What vegan tours and events are available?",
-    expectedElements: ["Berlin Vegan Food Tour", "Berlin Vegan Market", "tour", "event"]
+    expectedElements: ["Berlin Vegan Food Tour", "Green Market Berlin", "tour", "event"]
   },
   {
     name: "Multi-Category",
@@ -94,6 +94,11 @@ async function testChatbot() {
       // Check metadata
       if (chatResponse.metadata) {
         console.log(`✓ Metadata included: categories=${chatResponse.metadata.categories?.join(',') || 'none'}, listings=${chatResponse.metadata.listingReferences?.length || 0}`);
+        
+        // For quick actions context, verify city detection works
+        if (chatResponse.metadata.cityMention) {
+          console.log(`✓ City detected: ${chatResponse.metadata.cityMention} (has data: ${chatResponse.metadata.hasDataForCity})`);
+        }
       }
 
       // Show snippet of response
@@ -150,10 +155,10 @@ async function testConversationFlow() {
   let chatHistory = [];
   
   const conversationSteps = [
-    "Hi, I'm planning a vegan trip to Berlin",
+    "Berlin",
+    "I'm planning a 3-day trip next month",
     "What accommodation would you recommend?", 
-    "Tell me more about the safety score for Vegan Hostel Berlin",
-    "What restaurants are nearby?"
+    "Tell me more about the safety score for A&O Berlin Mitte"
   ];
   
   try {

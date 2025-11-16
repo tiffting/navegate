@@ -27,12 +27,16 @@ export async function POST(request) {
     // Parse response and extract any listing references
     const listingReferences = extractListingReferences(text);
     
+    const cityInfo = detectCityMention(message);
+    
     return Response.json({
       response: text,
       timestamp: new Date().toISOString(),
       metadata: {
         listingReferences,
-        categories: inferCategoriesFromMessage(message)
+        categories: inferCategoriesFromMessage(message),
+        cityMention: cityInfo.city,
+        hasDataForCity: cityInfo.hasData
       }
     });
 
@@ -84,11 +88,48 @@ function buildTravelContext() {
       .join(', ');
   };
 
-  const formatListing = (listing) => `
+  const formatListing = (listing) => {
+    let logisticsInfo = '';
+    
+    if (listing.logistics) {
+      switch (listing.category) {
+        case 'restaurant':
+          logisticsInfo = `
+- Hours: ${listing.logistics.hours?.tuesday || 'Varies'} (Tue-Thu), ${listing.logistics.hours?.weekend || 'Check website'}
+- Booking: ${listing.logistics.booking?.required ? 'Required' : 'Walk-in OK'} - ${listing.logistics.booking?.methods?.[0]?.note || 'Online booking available'}
+- Website: ${listing.website}
+- Price range: ${listing.logistics.pricing?.range} (${listing.logistics.pricing?.average_meal})`;
+          break;
+        case 'accommodation':
+          logisticsInfo = `
+- Check-in: ${listing.logistics.check_in?.time}, Check-out: ${listing.logistics.check_out}
+- Booking: ${listing.logistics.booking?.methods?.[0]?.note || 'Online booking'} - ${listing.logistics.booking?.cancellation}
+- Website: ${listing.website}
+- Pricing: ${listing.logistics.pricing?.dorm_bed || listing.logistics.pricing?.standard_room || 'Check website'}`;
+          break;
+        case 'tour':
+          logisticsInfo = `
+- Schedule: ${listing.logistics.schedule?.days} at ${listing.logistics.schedule?.time} (${listing.logistics.schedule?.duration})
+- Meeting: ${listing.logistics.schedule?.meeting_point}
+- Website: ${listing.website}
+- Booking: ${listing.logistics.booking?.advance_notice} - ${listing.logistics.pricing?.adult}`;
+          break;
+        case 'event':
+          logisticsInfo = `
+- Schedule: ${listing.logistics.schedule?.frequency} at ${listing.logistics.schedule?.time}
+- Next dates: ${listing.logistics.next_dates?.slice(0, 2).join(', ') || 'Check website'}
+- Website: ${listing.website}
+- Entry: ${listing.logistics.entry?.cost} - Transit: ${listing.logistics.location_details?.nearest_transit}`;
+          break;
+      }
+    }
+    
+    return `
 ${listing.name} (${listing.category}, Score: ${listing.safetyScore.score}/100)
-- Location: ${listing.location.address}
+- Location: ${listing.location.address}${logisticsInfo}
 - Safety signals: ${formatSignals(listing.safetyScore.signals)}
 - Key reviews: ${listing.safetyScore.citations.slice(0, 2).join(' | ')}`;
+  };
 
   return `
 BERLIN VEGAN TRAVEL DATABASE:
@@ -115,7 +156,20 @@ function buildChatPrompt(message, chatHistory, context) {
     ? chatHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')
     : '';
 
+  // Get current date for proper context
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const formattedDate = currentDate.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
   return `You are VeganBnB's AI Travel Assistant, specializing in complete vegan travel planning across restaurants, accommodations, tours, and events.
+
+CURRENT DATE: ${formattedDate} (${currentYear})
+IMPORTANT: When users mention dates, assume they mean ${currentYear} unless explicitly stated otherwise.
 
 CONTEXT DATABASE:
 ${context}
@@ -125,33 +179,27 @@ ${conversationHistory}
 
 USER MESSAGE: ${message}
 
-INSTRUCTIONS:
-1. Provide comprehensive travel recommendations across ALL relevant categories
-2. Always mention safety scores and explain why they matter for vegan travelers
-3. Reference specific listings from the database when making recommendations
-4. Include category-specific safety insights using HUMAN-READABLE terms:
-   - For restaurants: "cross-contamination prevention", "staff knowledge", "ingredient transparency"
-   - For accommodations: "kitchen safety", "vegan breakfast quality", "bedding materials" 
-   - For tours: "guide expertise", "meal handling", "group dynamics"
-   - For events: "food quality", "accessibility", "community atmosphere"
-5. Be conversational and helpful, like a knowledgeable local vegan friend
-6. For trip planning requests, suggest combinations across categories (accommodation + restaurants + activities)
-7. Always explain the reasoning behind recommendations using safety signals with proper names (not code names)
-8. Keep responses focused on Berlin (our current database)
+CORE REQUIREMENTS:
+• START CONVERSATIONAL: When user mentions a city, ask about their trip (dates, interests) before overwhelming with listings
+• Provide ACTIONABLE recommendations with complete logistics: hours, booking methods, pricing, transit
+• Always include safety scores (0-100) with explanations using human-readable signal names
+• Prioritize online/email booking (eSIM-friendly, English-available options)
+• Be solution-oriented with scheduling - find combinations when possible, not limitations
+• CITY HANDLING: If user mentions Berlin, acknowledge positively and ask follow-up questions. For other cities, acknowledge and redirect to Berlin as demo example
+• PROGRESSIVE DISCLOSURE: Start simple, add detail based on user interest
 
-RESPONSE STYLE:
-- Conversational and enthusiastic about vegan travel
-- Include specific safety scores in parentheses
-- Mention key safety signals that matter for each category
-- Use proper markdown formatting with **bold**, bullet points, and headings
-- Structure responses clearly with sections for different categories
-- Offer follow-up suggestions
+CATEGORY SIGNALS TO REFERENCE:
+• Restaurants: cross-contamination prevention, staff knowledge, ingredient transparency
+• Accommodations: kitchen safety, vegan breakfast quality, bedding materials
+• Tours: guide expertise, meal handling, group dynamics  
+• Events: food quality, accessibility, community atmosphere
 
-FORMAT YOUR RESPONSE WITH MARKDOWN:
-- Use **bold** for venue names and safety scores
-- Use bullet points for lists of recommendations
-- Use ## for section headers (e.g., ## Accommodations, ## Restaurants)
-- Use - for bullet points and numbered lists where appropriate
+TONE & FORMAT:
+• Professional yet warm, minimal exclamation marks, selective emojis (🎯🕐🌱)
+• Markdown: **bold** venue names/scores, proper ## headers with space after hashes, bullet points with -
+• Links: Always link to websites using [text](url) format - this opens in new tab for easy access
+• Structure: conversational but organized with clear sections
+• MARKDOWN FORMATTING RULES: Always use space after # symbols (## Header not ##Header), use - for bullets, **bold** for emphasis, [link text](url) for clickable links
 
 RESPOND:`;
 }
@@ -170,10 +218,38 @@ function extractListingReferences(responseText) {
   return references;
 }
 
+function detectCityMention(message) {
+  const lower = message.toLowerCase();
+  
+  // Check for Berlin mentions
+  if (lower.includes('berlin')) {
+    return { city: 'Berlin', hasData: true };
+  }
+  
+  // Check for other cities
+  const otherCities = ['paris', 'amsterdam', 'barcelona', 'madrid', 'rome', 'london', 'prague', 'vienna'];
+  for (const city of otherCities) {
+    if (lower.includes(city)) {
+      return { 
+        city: city.charAt(0).toUpperCase() + city.slice(1), 
+        hasData: false 
+      };
+    }
+  }
+  
+  return { city: null, hasData: false };
+}
+
 function inferCategoriesFromMessage(message) {
   // Infer which categories the user is asking about
   const categories = [];
   const lower = message.toLowerCase();
+  
+  // Check for city mention first
+  const cityInfo = detectCityMention(message);
+  if (cityInfo.city) {
+    categories.push('city_planning');
+  }
   
   if (lower.includes('restaurant') || lower.includes('eat') || lower.includes('food') || lower.includes('dinner') || lower.includes('lunch')) {
     categories.push('restaurant');

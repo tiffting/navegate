@@ -39,9 +39,10 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 
 ## Current Status
 
-🎉 **MAJOR MILESTONES COMPLETE** (Demo Ready):
+🎉 **DEMO READY - ALL CORE FEATURES COMPLETE**:
 - ✅ **Category-Adaptive AI Analyzer** - Hero feature with explainable safety scores
 - ✅ **AI Travel Assistant Chatbot** - Showstopper feature with multi-category planning
+- ✅ **Actionable Logistics** - eSIM-friendly booking, pricing, schedules for international travelers
 - ✅ **Professional UI** - Landing page + chat interface
 - ✅ **RAG Architecture** - Complete database context with human-readable formatting
 
