@@ -31,6 +31,11 @@ export interface UserPreferences {
     includeBreakfast: boolean;
     includeSnacks: boolean;
     style: "foodie" | "casual" | "efficient";
+    preferredMealTimes?: {
+      breakfast?: string;
+      lunch?: string;
+      dinner?: string;
+    };
   };
   mobilityPreferences: {
     transportModes: ("walking" | "public_transit" | "taxi")[];
@@ -41,6 +46,7 @@ export interface UserPreferences {
   tripPreferences: {
     planningStyle: "structured" | "flexible";
     groupSize?: number;
+    travelDates?: string;
   };
 }
 
@@ -80,11 +86,30 @@ export default function UserPreferences({ onPreferencesChange }: UserPreferences
   // Load preferences from localStorage on mount
   useEffect(() => {
     const loadPreferences = () => {
-      const saved = localStorage.getItem('veganbnb-preferences');
+      const saved = localStorage.getItem('veganbnb-user-preferences');
       if (saved) {
         try {
           const parsedPreferences = JSON.parse(saved);
-          setPreferences({ ...defaultPreferences, ...parsedPreferences });
+          // Deep merge to properly handle nested objects
+          const loadedPreferences = {
+            ...defaultPreferences,
+            ...parsedPreferences,
+            eatingPreferences: {
+              ...defaultPreferences.eatingPreferences,
+              ...parsedPreferences.eatingPreferences
+            },
+            mobilityPreferences: {
+              ...defaultPreferences.mobilityPreferences,
+              ...parsedPreferences.mobilityPreferences
+            },
+            tripPreferences: {
+              ...defaultPreferences.tripPreferences,
+              ...parsedPreferences.tripPreferences
+            }
+          };
+          setPreferences(loadedPreferences);
+          onPreferencesChange?.(loadedPreferences); // Notify parent of loaded preferences
+          console.log('✅ Preferences loaded from localStorage:', loadedPreferences);
         } catch (error) {
           console.error('Error loading preferences:', error);
         }
@@ -92,14 +117,15 @@ export default function UserPreferences({ onPreferencesChange }: UserPreferences
     };
     
     loadPreferences();
-  }, []);
+  }, [onPreferencesChange]);
 
   // Save preferences to localStorage
   const savePreferences = () => {
-    localStorage.setItem('veganbnb-preferences', JSON.stringify(preferences));
+    localStorage.setItem('veganbnb-user-preferences', JSON.stringify(preferences));
     setHasUnsavedChanges(false);
     setSaveSuccess(true);
     onPreferencesChange?.(preferences);
+    console.log('✅ Preferences saved to localStorage:', preferences);
     
     // Show success feedback briefly
     setTimeout(() => setSaveSuccess(false), 2000);
@@ -149,8 +175,42 @@ export default function UserPreferences({ onPreferencesChange }: UserPreferences
     setHasUnsavedChanges(true);
   };
 
+  // Reload preferences when dialog opens to catch external updates
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      // Reload preferences from localStorage when opening
+      const saved = localStorage.getItem('veganbnb-user-preferences');
+      if (saved) {
+        try {
+          const parsedPreferences = JSON.parse(saved);
+          const reloadedPreferences = {
+            ...defaultPreferences,
+            ...parsedPreferences,
+            eatingPreferences: {
+              ...defaultPreferences.eatingPreferences,
+              ...parsedPreferences.eatingPreferences
+            },
+            mobilityPreferences: {
+              ...defaultPreferences.mobilityPreferences,
+              ...parsedPreferences.mobilityPreferences
+            },
+            tripPreferences: {
+              ...defaultPreferences.tripPreferences,
+              ...parsedPreferences.tripPreferences
+            }
+          };
+          setPreferences(reloadedPreferences);
+          console.log('🔄 Reloaded preferences on dialog open:', reloadedPreferences);
+        } catch (error) {
+          console.error('Error reloading preferences:', error);
+        }
+      }
+    }
+    setIsOpen(open);
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Settings className="w-4 h-4" />

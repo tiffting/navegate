@@ -3,7 +3,14 @@ import { mockListings, getListingsByCategory, getHighScoringListings } from "../
 
 export async function POST(request) {
   try {
-    const { message, chatHistory = [] } = await request.json();
+    const { message, chatHistory = [], userPreferences = null } = await request.json();
+
+    // Debug logging for preferences
+    console.log('🔍 Chat API Request:', {
+      message: message.substring(0, 50) + '...',
+      hasUserPreferences: !!userPreferences,
+      preferenceKeys: userPreferences ? Object.keys(userPreferences) : 'none'
+    });
 
     // Input validation
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -29,8 +36,8 @@ export async function POST(request) {
     // Get context from all listings for RAG-style responses
     const context = buildTravelContext();
     
-    // Build conversation prompt with context injection
-    const prompt = buildChatPrompt(message, chatHistory, context);
+    // Build conversation prompt with context injection and user preferences
+    const prompt = buildChatPrompt(message, chatHistory, context, userPreferences);
     
     // Try AI API first, fallback to hardcoded responses for development
     let text;
@@ -371,7 +378,7 @@ ${getHighScoringListings(85).map(l => `${l.name} (${l.category}: ${l.safetyScore
 `;
 }
 
-function buildChatPrompt(message, chatHistory, context) {
+function buildChatPrompt(message, chatHistory, context, userPreferences) {
   const conversationHistory = chatHistory.length > 0 
     ? chatHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')
     : '';
@@ -386,11 +393,29 @@ function buildChatPrompt(message, chatHistory, context) {
     day: 'numeric' 
   });
 
+  // Build user preferences context
+  let userPreferencesContext = '';
+  if (userPreferences) {
+    userPreferencesContext = `
+USER PREFERENCES (from smart interview - DO NOT RE-ASK these questions):
+• Budget: ${userPreferences.budgetRange !== "any" ? userPreferences.budgetRange : "No specific budget preference"}
+• Eating style: ${userPreferences.eatingPreferences?.style || "Not specified"}
+• Breakfast planning: ${userPreferences.eatingPreferences?.includeBreakfast ? "Yes, include breakfast recommendations" : "Skip breakfast"}
+• Transport preferences: ${userPreferences.mobilityPreferences?.transportModes?.join(", ") || "Not specified"}
+• Wheelchair accessible: ${userPreferences.mobilityPreferences?.wheelchairAccessible ? "Required" : "Not required"}
+• Planning style: ${userPreferences.tripPreferences?.planningStyle || "Not specified"}
+• Travel dates: ${userPreferences.tripPreferences?.travelDates || "Not specified"}
+• Dietary restrictions: ${userPreferences.dietaryRestrictions?.length > 0 ? userPreferences.dietaryRestrictions.join(", ") : "None beyond veganism"}
+
+IMPORTANT: User has already provided these preferences. Reference them naturally and DO NOT ask for this information again.
+`;
+  }
+
   return `You are VeganBnB's AI Travel Assistant, specializing in complete vegan travel planning across restaurants, accommodations, tours, and events.
 
 CURRENT DATE: ${formattedDate} (${currentYear})
 IMPORTANT: When users mention dates, assume they mean ${currentYear} unless explicitly stated otherwise.
-
+${userPreferencesContext}
 CONTEXT DATABASE:
 ${context}
 
@@ -400,7 +425,8 @@ ${conversationHistory}
 USER MESSAGE: ${message}
 
 CORE REQUIREMENTS:
-• START CONVERSATIONAL: When user mentions a city, ask about their trip (dates, interests) before overwhelming with listings
+• USE EXISTING PREFERENCES: When user mentions a city, reference their known preferences instead of re-asking. Only ask for clarification on missing details not covered in USER PREFERENCES section
+• MULTI-DAY PLANNING: If travel dates span multiple days OR user mentions duration, create a complete itinerary covering the FULL date range (e.g., "March 15-18" = 4 days of planning)
 • Provide ACTIONABLE recommendations with complete logistics: hours, booking methods, pricing, transit
 • Always include safety scores (0-100) with explanations using human-readable signal names
 • Prioritize online/email booking (eSIM-friendly, English-available options)

@@ -30,6 +30,20 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [userPreferences, setUserPreferences] = useState<UserPreferencesType | null>(null);
 
+    // Load user preferences from localStorage on startup
+    useEffect(() => {
+        try {
+            const savedPreferences = localStorage.getItem("veganbnb-user-preferences");
+            if (savedPreferences) {
+                const preferences = JSON.parse(savedPreferences);
+                setUserPreferences(preferences);
+                console.log("Loaded existing preferences from localStorage:", preferences);
+            }
+        } catch (error) {
+            console.error("Failed to load user preferences:", error);
+        }
+    }, []);
+
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [quickActionSuggestions, setQuickActionSuggestions] = useState<string[]>([]);
@@ -72,6 +86,27 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
             const text = messageText || input.trim();
             if (!text || isLoading) return;
 
+            // Debug command to check preferences
+            if (text === "/debug-preferences") {
+                const userMessage: Message = {
+                    id: `user-${Date.now()}`,
+                    role: "user",
+                    content: "/debug-preferences",
+                    timestamp: new Date(),
+                };
+
+                const debugMessage: Message = {
+                    id: `debug-${Date.now() + 1}`,
+                    role: "assistant",
+                    content: `**🔍 Debug Info:**\n\n**User Preferences Status:** ${userPreferences ? "✅ Loaded" : "❌ Not loaded"}\n\n${userPreferences ? `**Current Preferences:**\n\`\`\`json\n${JSON.stringify(userPreferences, null, 2)}\n\`\`\`` : "**localStorage data:** " + localStorage.getItem("veganbnb-user-preferences")}\n\n**How to verify AI sees them:** Check browser console for AI provider messages when you send a regular message.`,
+                    timestamp: new Date(),
+                };
+                
+                setMessages((prev) => [...prev, userMessage, debugMessage]);
+                setInput(""); // Clear the input
+                return;
+            }
+
             const userMessage: Message = {
                 id: `user-${Date.now()}`,
                 role: "user",
@@ -104,6 +139,7 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
                     body: JSON.stringify({
                         message: text,
                         chatHistory: messages.slice(-5), // Send last 5 messages for context
+                        userPreferences: userPreferences, // Send user preferences for AI context
                     }),
                 });
 
@@ -122,6 +158,53 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
                 };
 
                 setMessages((prev) => [...prev, assistantMessage]);
+
+                // Handle interview completion - save preferences automatically
+                if (data.metadata?.finalPreferences) {
+                    console.log("🎯 Interview completed! Raw finalPreferences:", data.metadata.finalPreferences);
+                    console.log("📋 Structure check:", {
+                        budgetRange: data.metadata.finalPreferences.budgetRange,
+                        eatingStyle: data.metadata.finalPreferences.eatingPreferences?.style,
+                        includeBreakfast: data.metadata.finalPreferences.eatingPreferences?.includeBreakfast,
+                        transportModes: data.metadata.finalPreferences.mobilityPreferences?.transportModes,
+                        wheelchairAccessible: data.metadata.finalPreferences.mobilityPreferences?.wheelchairAccessible,
+                        planningStyle: data.metadata.finalPreferences.tripPreferences?.planningStyle,
+                        travelDates: data.metadata.finalPreferences.tripPreferences?.travelDates,
+                        dietaryRestrictions: data.metadata.finalPreferences.dietaryRestrictions,
+                    });
+
+                    // Convert interview responses to user preferences format
+                    const preferences: UserPreferencesType = {
+                        budgetRange: data.metadata.finalPreferences.budgetRange || "any",
+                        minSafetyScore: 70, // Default safe minimum
+                        dietaryRestrictions: data.metadata.finalPreferences.dietaryRestrictions || [],
+                        maxDistance: 2000, // Default 2km
+                        openNow: false,
+                        eatingPreferences: {
+                            includeBreakfast: data.metadata.finalPreferences.eatingPreferences?.includeBreakfast ?? true,
+                            includeSnacks: false,
+                            style: data.metadata.finalPreferences.eatingPreferences?.style || "casual",
+                            preferredMealTimes: data.metadata.finalPreferences.eatingPreferences?.preferredMealTimes,
+                        },
+                        mobilityPreferences: {
+                            transportModes: data.metadata.finalPreferences.mobilityPreferences?.transportModes || ["walking", "public_transit"],
+                            wheelchairAccessible: data.metadata.finalPreferences.mobilityPreferences?.wheelchairAccessible ?? false,
+                            maxWalkingDistance: 15, // 15 minutes default
+                            preferredPace: "moderate",
+                        },
+                        tripPreferences: {
+                            planningStyle: data.metadata.finalPreferences.tripPreferences?.planningStyle || "flexible",
+                            groupSize: 2, // Default
+                            travelDates: data.metadata.finalPreferences.tripPreferences?.travelDates,
+                        },
+                    };
+
+                    // Save to localStorage and update state
+                    localStorage.setItem("veganbnb-user-preferences", JSON.stringify(preferences));
+                    setUserPreferences(preferences);
+
+                    console.log("Preferences auto-saved from interview:", preferences);
+                }
             } catch (error) {
                 console.error("Chat error:", error);
                 const errorMessage: Message = {
@@ -135,7 +218,7 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
                 setIsLoading(false);
             }
         },
-        [input, isLoading, messages],
+        [input, isLoading, messages, userPreferences],
     );
 
     // Auto-start interview on first load
@@ -205,13 +288,13 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
             const itinerary = generateItineraryFromChat(messages);
             if (itinerary) {
                 downloadIcsFile(itinerary);
-                
+
                 // Add confirmation message to chat
                 const confirmationMessage: Message = {
                     id: Date.now().toString(),
                     role: "assistant",
-                    content: `✅ **Calendar export complete!** 
-                    
+                    content: `✅ **Calendar export complete!**
+
 Your ${itinerary.title} has been downloaded as a calendar file. You can now import it into your preferred calendar app:
 
 - **Apple Calendar**: Double-click the .ics file
@@ -221,25 +304,26 @@ Your ${itinerary.title} has been downloaded as a calendar file. You can now impo
 The calendar includes all venues, transit times, and booking details for your trip! 🎉`,
                     timestamp: new Date(),
                     metadata: {
-                        categories: ["calendar_export"]
-                    }
+                        categories: ["calendar_export"],
+                    },
                 };
-                
-                setMessages(prev => [...prev, confirmationMessage]);
+
+                setMessages((prev) => [...prev, confirmationMessage]);
             } else {
                 // Fallback if no itinerary could be generated
                 const errorMessage: Message = {
                     id: Date.now().toString(),
-                    role: "assistant", 
-                    content: "I need more trip details to create a calendar export. Could you tell me more about your travel plans, including dates and specific venues you'd like to visit?",
-                    timestamp: new Date()
+                    role: "assistant",
+                    content:
+                        "I need more trip details to create a calendar export. Could you tell me more about your travel plans, including dates and specific venues you'd like to visit?",
+                    timestamp: new Date(),
                 };
-                
-                setMessages(prev => [...prev, errorMessage]);
+
+                setMessages((prev) => [...prev, errorMessage]);
             }
             return;
         }
-        
+
         // Send regular suggestions as messages
         sendMessage(suggestion);
     };
@@ -321,15 +405,12 @@ The calendar includes all venues, transit times, and booking details for your tr
                             <p className="text-sm text-gray-600">Your AI guide for complete vegan travel planning</p>
                         </div>
                     </div>
-                    
+
                     {/* Preferences Button with Status Indicator */}
                     <div className="relative">
-                        <UserPreferences 
-                            onPreferencesChange={setUserPreferences}
-                        />
+                        <UserPreferences onPreferencesChange={setUserPreferences} />
                         {userPreferences && (
-                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full" 
-                                 title="Preferences saved" />
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full" title="Preferences saved" />
                         )}
                     </div>
                 </div>
@@ -340,10 +421,69 @@ The calendar includes all venues, transit times, and booking details for your tr
                 <div className="bg-green-50 border-b border-green-200 px-4 py-2">
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-green-800">
-                            <strong>Preferences active:</strong> {userPreferences.budgetRange !== "any" && `${userPreferences.budgetRange} budget`}
-                            {userPreferences.budgetRange !== "any" && userPreferences.minSafetyScore > 70 && " • "}
-                            {userPreferences.minSafetyScore > 70 && `${userPreferences.minSafetyScore}+ safety score`}
-                            {userPreferences.dietaryRestrictions.length > 0 && ` • ${userPreferences.dietaryRestrictions.join(", ")}`}
+                            <strong>Preferences active:</strong>{" "}
+                            {(() => {
+                                const prefs = [];
+
+                                // Budget
+                                if (userPreferences.budgetRange !== "any") {
+                                    prefs.push(`${userPreferences.budgetRange} budget`);
+                                }
+
+                                // Safety score
+                                if (userPreferences.minSafetyScore > 70) {
+                                    prefs.push(`${userPreferences.minSafetyScore}+ safety`);
+                                }
+
+                                // Eating style
+                                if (userPreferences.eatingPreferences?.style && userPreferences.eatingPreferences.style !== "casual") {
+                                    prefs.push(`${userPreferences.eatingPreferences.style} dining`);
+                                }
+
+                                // Planning style
+                                if (userPreferences.tripPreferences?.planningStyle && userPreferences.tripPreferences.planningStyle !== "flexible") {
+                                    prefs.push(`${userPreferences.tripPreferences.planningStyle} planning`);
+                                }
+
+                                // Transport modes (show if not default walking + public transit)
+                                const transportModes = userPreferences.mobilityPreferences?.transportModes || [];
+                                if (
+                                    transportModes.length > 0 &&
+                                    !(transportModes.length === 2 && transportModes.includes("walking") && transportModes.includes("public_transit"))
+                                ) {
+                                    const humanFriendlyModes = transportModes.map((mode) => {
+                                        switch (mode) {
+                                            case "public_transit":
+                                                return "public transit";
+                                            case "walking":
+                                                return "walking";
+                                            case "taxi":
+                                                return "taxi";
+                                            default:
+                                                return mode;
+                                        }
+                                    });
+                                    prefs.push(humanFriendlyModes.join(" + "));
+                                }
+
+                                // Dietary restrictions
+                                if (userPreferences.dietaryRestrictions?.length > 0) {
+                                    prefs.push(userPreferences.dietaryRestrictions.join(", "));
+                                }
+
+                                // Travel dates (format nicely)
+                                if (userPreferences.tripPreferences?.travelDates) {
+                                    const dates = userPreferences.tripPreferences.travelDates;
+                                    // Convert formats like "19-21 nov" to "19-21 Nov"
+                                    const formattedDates = dates.replace(
+                                        /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/gi,
+                                        (match) => match.charAt(0).toUpperCase() + match.slice(1).toLowerCase(),
+                                    );
+                                    prefs.push(formattedDates);
+                                }
+
+                                return prefs.length > 0 ? prefs.join(" • ") : "Default settings";
+                            })()}
                         </span>
                         <span className="text-green-600 text-xs">Personalizing recommendations</span>
                     </div>
@@ -356,7 +496,7 @@ The calendar includes all venues, transit times, and booking details for your tr
                     {messages
                         .filter((msg) => msg.content !== "__AUTO_START__")
                         .map((message, index, filteredMessages) => {
-                            // Find the last user message for scroll targeting  
+                            // Find the last user message for scroll targeting
                             const allMessagesAfterThis = messages.slice(messages.indexOf(message) + 1);
                             const isLastUserMessage = message.role === "user" && !allMessagesAfterThis.some((m) => m.role === "user");
 

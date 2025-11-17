@@ -4,14 +4,16 @@
 function canExportToCalendar(content) {
   const lowerContent = content.toLowerCase();
   
-  // Don't show export if AI is asking questions
-  const isAskingQuestions = lowerContent.includes('could you please') ||
-                           lowerContent.includes('would you like') ||
+  // Don't show export if AI is asking questions (but allow calendar-related questions)
+  const isAskingQuestions = (lowerContent.includes('could you please') ||
                            lowerContent.includes('what time') ||
                            lowerContent.includes('when do you') ||
                            lowerContent.includes('please share') ||
                            lowerContent.includes('to help you') ||
-                           lowerContent.includes('with this information');
+                           lowerContent.includes('with this information')) &&
+                           !lowerContent.includes('export') &&
+                           !lowerContent.includes('calendar') &&
+                           !lowerContent.includes('itinerary');
   
   if (isAskingQuestions) return false;
   
@@ -29,8 +31,13 @@ function canExportToCalendar(content) {
   const hasTravelPlan = lowerContent.includes('here\'s a tailored') ||
                        lowerContent.includes('travel plan') ||
                        lowerContent.includes('vegan travel plan') ||
-                       lowerContent.includes('accommodations') && lowerContent.includes('dining experiences') ||
-                       lowerContent.includes('tours and activities');
+                       lowerContent.includes('your berlin itinerary') ||
+                       lowerContent.includes('itinerary') ||
+                       lowerContent.includes('structured itinerary') ||
+                       (lowerContent.includes('accommodations') && lowerContent.includes('dining experiences')) ||
+                       lowerContent.includes('tours and activities') ||
+                       (lowerContent.includes('morning') && lowerContent.includes('lunch')) ||
+                       (lowerContent.includes('arrival:') || lowerContent.includes('summary of your day'));
 
   // Must have venue details (addresses, booking info, pricing)
   const hasVenueDetails = lowerContent.includes('booking:') ||
@@ -40,7 +47,11 @@ function canExportToCalendar(content) {
                          lowerContent.includes('check-in') ||
                          lowerContent.includes('address') ||
                          lowerContent.includes('safety signals') ||
-                         (lowerContent.includes('score:') && lowerContent.includes('/100'));
+                         lowerContent.includes('transit options') ||
+                         lowerContent.includes('website:') ||
+                         lowerContent.includes('price range:') ||
+                         (lowerContent.includes('score:') && lowerContent.includes('/100')) ||
+                         (lowerContent.includes('am:') || lowerContent.includes('pm:'));
 
   return hasSpecificVenues && hasTravelPlan && hasVenueDetails;
 }
@@ -99,9 +110,9 @@ function getSmartQuickActions(messageContent) {
     return ['yes', 'no'];
   }
   
-  // Transport modes (multiple choice) - only for the smart interview context
-  if (content.includes('how do you prefer to get around') && 
-      (content.includes('travel style') || content.includes('personalized recommendations') || content.includes('you can type "skip"'))) {
+  // Transport modes (multiple choice) - smart interview question
+  if (content.includes('how do you prefer to get around') || 
+      (content.includes('get around') && (content.includes('walking') || content.includes('public transit') || content.includes('taxi')))) {
     return ['walking', 'public transit', 'taxi', 'walking, public transit'];
   }
   

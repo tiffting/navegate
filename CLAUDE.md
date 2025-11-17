@@ -119,7 +119,7 @@ This ensures documentation stays current across all AI sessions.
 **Solution Features (Eitan implementing):**
 
 - **Interactive Map**: Visual venue discovery with safety score markers
-- **Smart Filtering**: Price range, rating, distance, currently open  
+- **Smart Filtering**: Price range, rating, distance, currently open
 - **Instant Details**: Click venue markers for safety analysis and logistics
 - **Preference Memory**: Budget and safety thresholds automatically applied
 
@@ -168,16 +168,16 @@ interface UserPreferences {
     dietaryRestrictions: string[]; // ["gluten-free", "nut-free"]
     maxDistance: number; // km radius for map
     openNow: boolean; // filter for currently open venues
-    
+
     // NEW: Enhanced travel preferences
     eatingPreferences: {
         includeBreakfast: boolean;
-        includeSnacks: boolean;  
+        includeSnacks: boolean;
         style: "foodie" | "casual" | "efficient";
         preferredMealTimes?: {
-            breakfast?: string;  // "8:00"
-            lunch?: string;     // "12:30" 
-            dinner?: string;    // "19:00"
+            breakfast?: string; // "8:00"
+            lunch?: string; // "12:30"
+            dinner?: string; // "19:00"
         };
     };
     mobilityPreferences: {
@@ -189,7 +189,7 @@ interface UserPreferences {
     tripPreferences: {
         planningStyle: "structured" | "flexible";
         groupSize?: number;
-        travelDates?: { start: string; end: string; };
+        travelDates?: { start: string; end: string };
     };
 }
 ```
@@ -197,7 +197,7 @@ interface UserPreferences {
 **Shared Components**:
 
 - Both interfaces consume the same mock data and safety analyzer
-- Safety scores and venue details consistent across both UX  
+- Safety scores and venue details consistent across both UX
 - **User preferences storage** (Planner: affects chat, Explorer: affects map filtering)
 - Mobile-responsive design for both personas
 
@@ -224,35 +224,41 @@ interface UserPreferences {
 **Smart Trip Optimization Features** (Future Development):
 
 **Geographic Clustering**:
+
 - **Area-based recommendations**: "Since you're doing the food tour in Kreuzberg, here are nearby dinner options"
 - **Transit optimization**: Minimize cross-city travel with intelligent venue sequencing
 - **Neighborhood expertise**: "Perfect for a Mitte food crawl" or "Complete your Friedrichshain day"
 
 **Advanced Transit Integration**:
-- **Real-time transit API**: Live Berlin public transport schedules and delays
+
+- **Real-time transit API**: Live Berlin public transit schedules and delays
 - **Accessibility routing**: Wheelchair-friendly paths and station access
 - **Multi-modal planning**: Walking + U-Bahn + S-Bahn optimal combinations
 - **Weather-aware routing**: Indoor alternatives for rainy days
 
 **Intelligent Scheduling**:
+
 - **Venue clustering algorithms**: Group nearby venues to reduce travel time
 - **Opening hours optimization**: Never suggest closed venues
 - **Crowd prediction**: Avoid peak times at popular spots
 - **Seasonal adjustments**: Outdoor vs indoor venue preferences
 
 **Enhanced User Preferences**:
+
 - **Mobility profiles**: Wheelchair accessible, limited walking, public transit only
 - **Pace preferences**: Leisurely explorer vs efficient sightseeer
 - **Group dynamics**: Solo travel vs couples vs families
 - **Cultural interests**: Food-focused vs attraction-focused vs event-focused
 
 **Technical Implementation**:
+
 - **Berlin Transit API**: Integration with BVG real-time data
-- **Google Maps API**: Walking times and accessibility data  
+- **Google Maps API**: Walking times and accessibility data
 - **Venue capacity prediction**: Popular times and crowd management
 - **Weather API integration**: Adaptive recommendations
 
 **Business Impact**:
+
 - **Differentiation**: No travel app offers this level of geographic intelligence
 - **User stickiness**: Complex trips require sophisticated planning tools
 - **Premium tier**: Advanced routing and real-time features justify higher pricing
@@ -536,8 +542,8 @@ interface Listing {
 
 - **Frontend**: Next.js 15 + TypeScript + Tailwind + Shadcn/UI
 - **AI**: Flexible provider system - OpenRouter (default), OpenAI, or Google Gemini
-  - Configured via `AI_PROVIDER` environment variable
-  - Centralized configuration in `lib/ai-config.js`
+    - Configured via `AI_PROVIDER` environment variable
+    - Centralized configuration in `lib/ai-config.js`
 - **Database**: Firebase (Firestore + Auth)
 - **Deploy**: Vercel
 - **Optional**: GPT-4 Vision (menu translation)
@@ -554,7 +560,7 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 
 **1. Restaurants (20)**
 
-- Source: HappyCow, [Berlin Vegan](https://github.com/Berlin-Vegan/berlin-vegan-map/blob/master/angular/src/assets/GastroLocations.json) 
+- Source: HappyCow, [Berlin Vegan](https://github.com/Berlin-Vegan/berlin-vegan-map/blob/master/angular/src/assets/GastroLocations.json)
 - Reviews: Extract from Google Maps, HappyCow
 - Signals: Cross-contamination, staff knowledge, ingredient transparency
 
@@ -711,12 +717,14 @@ Format as structured JSON.
 ### Development Status _(Current Reality)_
 
 **Team Contributions**:
-- **Tiff**: Full-stack development, all technical implementation  
+
+- **Tiff**: Full-stack development, all technical implementation
 - **Eitan**: Dual persona strategy (Planner vs Explorer), demo script development
 - **Felix**: Mock data expansion and curation across all categories
 
 **✅ COMPLETED FEATURES**:
-- ✅ Smart Interview Process (AI discovers travel preferences) 
+
+- ✅ Smart Interview Process (AI discovers travel preferences)
 - ✅ Enhanced User Preferences Panel (comprehensive settings with localStorage persistence)
 - ✅ OpenRouter AI Integration (reliable alternative to Gemini API)
 - ✅ Quick Actions System (contextual suggestions during interview)
@@ -724,6 +732,7 @@ Format as structured JSON.
 - ✅ Complete RAG architecture with fallback responses
 
 **📋 REMAINING FEATURES** (Future Development):
+
 - **Calendar Export**: Parse chat recommendations into .ics files for trip execution
 - **Interactive Map**: Visual venue discovery with safety score markers and filtering
 - **Advanced Preferences**: Auto-apply user settings to recommendations
@@ -762,12 +771,11 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 **Technical Setup (Completed by Tiff):**
 
 1. GitHub repo + Next.js boilerplate with category structure ✅
-2. Multi-provider AI system (OpenRouter/OpenAI/Gemini) with fallback ✅  
+2. Multi-provider AI system (OpenRouter/OpenAI/Gemini) with fallback ✅
 3. Smart interview process with preferences ✅
 4. Professional chat interface with quick actions ✅
 5. Estimate API costs (should be <$10 for demo) ✅
 6. Share setup instructions ✅
-
 
 ---
 
