@@ -43,12 +43,11 @@ export default function Home() {
                                 Start Planning My Trip
                             </Button>
                         </Link>
-                        <Link href="/chat">
-                            <Button variant="outline" size="lg">
-                                <MapPin className="w-5 h-5 mr-2" />
-                                Explore & Discover
-                            </Button>
-                        </Link>
+                        <Button variant="outline" size="lg" disabled className="relative cursor-not-allowed opacity-60" title="Coming Soon: Interactive map with venue discovery, filtering by safety scores, budget, and distance. Perfect for spontaneous explorers!">
+                            <MapPin className="w-5 h-5 mr-2" />
+                            Explore & Discover
+                            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Soon</span>
+                        </Button>
                     </div>
                 </div>
 
@@ -60,7 +59,7 @@ export default function Home() {
                         </div>
                         <h3 className="font-semibold text-gray-900 mb-2">Restaurants</h3>
                         <p className="text-gray-600 text-sm">Cross-contamination safety, staff knowledge, ingredient transparency</p>
-                        <div className="mt-3 text-sm text-green-600 font-medium">2 listings • 42-98 safety scores</div>
+                        <div className="mt-3 text-sm text-green-600 font-medium">36 listings • 0-98 safety scores</div>
                     </div>
 
                     <div className="bg-white rounded-lg p-6 shadow-sm border">
@@ -69,7 +68,7 @@ export default function Home() {
                         </div>
                         <h3 className="font-semibold text-gray-900 mb-2">Accommodations</h3>
                         <p className="text-gray-600 text-sm">Kitchen safety, vegan breakfast, bedding materials, host knowledge</p>
-                        <div className="mt-3 text-sm text-green-600 font-medium">3 listings • 48-84 safety scores</div>
+                        <div className="mt-3 text-sm text-green-600 font-medium">5 listings • 48-84 safety scores</div>
                     </div>
 
                     <div className="bg-white rounded-lg p-6 shadow-sm border">
@@ -78,7 +77,7 @@ export default function Home() {
                         </div>
                         <h3 className="font-semibold text-gray-900 mb-2">Tours</h3>
                         <p className="text-gray-600 text-sm">Guide expertise, meal handling, group dynamics, hidden animal exploitation</p>
-                        <div className="mt-3 text-sm text-green-600 font-medium">1 listing • 94 safety score</div>
+                        <div className="mt-3 text-sm text-green-600 font-medium">4 listings • 75-94 safety scores</div>
                     </div>
 
                     <div className="bg-white rounded-lg p-6 shadow-sm border">

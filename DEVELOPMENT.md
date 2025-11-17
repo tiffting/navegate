@@ -190,4 +190,10 @@ git checkout -b feature/external-data-sources
 ### Testing:
 
 - `tests/test-chatbot.js` - Comprehensive conversation scenarios
+- `tests/test-calendar-export.js` - Calendar export functionality validation
 - All TypeScript/lint compliant
+
+```bash
+# Test calendar export feature
+npx tsx tests/test-calendar-export.js
+```

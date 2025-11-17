@@ -7,6 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ReactMarkdown from "react-markdown";
 import UserPreferences, { type UserPreferences as UserPreferencesType } from "@/components/preferences/user-preferences";
+import { generateItineraryFromChat } from "@/lib/sample-itinerary";
+import { downloadIcsFile } from "@/lib/calendar-export";
 
 interface Message {
     id: string;
@@ -198,7 +200,47 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
     };
 
     const handleQuickActionClick = (suggestion: string) => {
-        // Send the suggestion as a message directly
+        // Handle special calendar export action
+        if (suggestion === "📅 Export to Calendar") {
+            const itinerary = generateItineraryFromChat(messages);
+            if (itinerary) {
+                downloadIcsFile(itinerary);
+                
+                // Add confirmation message to chat
+                const confirmationMessage: Message = {
+                    id: Date.now().toString(),
+                    role: "assistant",
+                    content: `✅ **Calendar export complete!** 
+                    
+Your ${itinerary.title} has been downloaded as a calendar file. You can now import it into your preferred calendar app:
+
+- **Apple Calendar**: Double-click the .ics file
+- **Google Calendar**: Go to Settings > Import & Export > Import
+- **Outlook**: File > Open & Export > Import/Export
+
+The calendar includes all venues, transit times, and booking details for your trip! 🎉`,
+                    timestamp: new Date(),
+                    metadata: {
+                        categories: ["calendar_export"]
+                    }
+                };
+                
+                setMessages(prev => [...prev, confirmationMessage]);
+            } else {
+                // Fallback if no itinerary could be generated
+                const errorMessage: Message = {
+                    id: Date.now().toString(),
+                    role: "assistant", 
+                    content: "I need more trip details to create a calendar export. Could you tell me more about your travel plans, including dates and specific venues you'd like to visit?",
+                    timestamp: new Date()
+                };
+                
+                setMessages(prev => [...prev, errorMessage]);
+            }
+            return;
+        }
+        
+        // Send regular suggestions as messages
         sendMessage(suggestion);
     };
 
@@ -314,8 +356,9 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
                     {messages
                         .filter((msg) => msg.content !== "__AUTO_START__")
                         .map((message, index, filteredMessages) => {
-                            // Find the last user message for scroll targeting
-                            const isLastUserMessage = message.role === "user" && !messages.slice(index + 1).some((m) => m.role === "user");
+                            // Find the last user message for scroll targeting  
+                            const allMessagesAfterThis = messages.slice(messages.indexOf(message) + 1);
+                            const isLastUserMessage = message.role === "user" && !allMessagesAfterThis.some((m) => m.role === "user");
 
                             // Check if this is the last assistant message for quick actions (use filtered array length)
                             const isLastAssistantMessage = message.role === "assistant" && index === filteredMessages.length - 1 && !isLoading;

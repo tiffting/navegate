@@ -1,5 +1,50 @@
 // Simple, selective quick actions without AI dependency
 
+// Check if content has enough detail for calendar export
+function canExportToCalendar(content) {
+  const lowerContent = content.toLowerCase();
+  
+  // Don't show export if AI is asking questions
+  const isAskingQuestions = lowerContent.includes('could you please') ||
+                           lowerContent.includes('would you like') ||
+                           lowerContent.includes('what time') ||
+                           lowerContent.includes('when do you') ||
+                           lowerContent.includes('please share') ||
+                           lowerContent.includes('to help you') ||
+                           lowerContent.includes('with this information');
+  
+  if (isAskingQuestions) return false;
+  
+  // Must have specific venue names (indicates detailed recommendations)
+  const hasSpecificVenues = lowerContent.includes('kopps') ||
+                           lowerContent.includes('gratitude') ||
+                           lowerContent.includes('alaska') ||
+                           lowerContent.includes('a&o berlin') ||
+                           lowerContent.includes('brammibal') ||
+                           lowerContent.includes('michelberger hotel') ||
+                           lowerContent.includes('1990 vegan living') ||
+                           lowerContent.includes('+84 vietnamese');
+
+  // Look for detailed travel plan indicators
+  const hasTravelPlan = lowerContent.includes('here\'s a tailored') ||
+                       lowerContent.includes('travel plan') ||
+                       lowerContent.includes('vegan travel plan') ||
+                       lowerContent.includes('accommodations') && lowerContent.includes('dining experiences') ||
+                       lowerContent.includes('tours and activities');
+
+  // Must have venue details (addresses, booking info, pricing)
+  const hasVenueDetails = lowerContent.includes('booking:') ||
+                         lowerContent.includes('location:') ||
+                         lowerContent.includes('pricing:') ||
+                         lowerContent.includes('hours:') ||
+                         lowerContent.includes('check-in') ||
+                         lowerContent.includes('address') ||
+                         lowerContent.includes('safety signals') ||
+                         (lowerContent.includes('score:') && lowerContent.includes('/100'));
+
+  return hasSpecificVenues && hasTravelPlan && hasVenueDetails;
+}
+
 export async function POST(request) {
   try {
     const { lastMessage } = await request.json();
@@ -54,8 +99,9 @@ function getSmartQuickActions(messageContent) {
     return ['yes', 'no'];
   }
   
-  // Transport modes (multiple choice)
-  if (content.includes('how do you prefer to get around') || (content.includes('get around') && content.includes('walking'))) {
+  // Transport modes (multiple choice) - only for the smart interview context
+  if (content.includes('how do you prefer to get around') && 
+      (content.includes('travel style') || content.includes('personalized recommendations') || content.includes('you can type "skip"'))) {
     return ['walking', 'public transit', 'taxi', 'walking, public transit'];
   }
   
@@ -67,6 +113,11 @@ function getSmartQuickActions(messageContent) {
   // Dietary restrictions (common options)
   if (content.includes('dietary restrictions beyond veganism') || (content.includes('dietary restrictions') && content.includes('beyond'))) {
     return ['none', 'gluten-free', 'nut-free', 'gluten-free, nut-free'];
+  }
+  
+  // CALENDAR EXPORT (when detailed itinerary is provided)
+  if (canExportToCalendar(content)) {
+    return ['📅 Export to Calendar'];
   }
   
   // CITY SELECTION (clear choice scenario)
