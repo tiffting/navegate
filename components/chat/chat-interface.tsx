@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import TravelSettings, { type TravelSettings as TravelSettingsType } from "@/components/settings/travel-settings";
 import { generateItineraryFromChat } from "@/lib/sample-itinerary";
 import { downloadIcsFile } from "@/lib/calendar-export";
@@ -32,27 +34,46 @@ function CalendarExportButton({ messages }: { messages: Message[] }) {
 
     const content = lastAssistantMessage.content.toLowerCase();
 
-    // Look for actual itinerary content (not just recommendations)
-    const hasItinerary =
-        // Must have structured itinerary indicators
-        (content.includes("day 1") ||
-            content.includes("day one") ||
-            content.includes("day 2") ||
-            content.includes("day two") ||
-            (content.includes("morning:") && content.includes("afternoon:")) ||
-            content.includes("itinerary") ||
-            // Or structured timing with multiple days/sessions
-            ((content.includes("9:00") || content.includes("10:00") || content.includes("11:00") || content.includes("12:00")) &&
-             (content.includes("day") || content.includes("morning") || content.includes("afternoon"))) ||
-            // Or clear schedule structure with travel planning
-            (content.includes("schedule") && (content.includes("travel") || content.includes("trip"))))
-        &&
-        // Exclude recommendations and welcome messages
-        !content.includes("here are my top") &&
-        !content.includes("recommendations") &&
-        !content.includes("which city would you like") &&
-        !content.includes("welcome to veganbnb") &&
-        !content.includes("need help planning");
+    // Check for structured schedule format (tables or day headers)
+    const hasStructuredSchedule = () => {
+        // Table format with times (like your example above)
+        const tableRowsWithTimes = (content.match(/\|\s*\d{1,2}:\d{2}|\|\s*\d{1,2}\s*(am|pm)/gi) || []).length;
+        
+        // Day-based headers
+        const dayHeaders = (content.match(/##?\s*(day \d+|monday|tuesday|wednesday|thursday|friday|saturday|sunday)/gi) || []).length;
+        
+        return tableRowsWithTimes >= 2 || dayHeaders >= 2;
+    };
+
+    // Check conversation progression (accommodation confirmed + dining planned)
+    const hasCompleteTripPlan = () => {
+        // User has confirmed accommodation choice
+        const hasConfirmedAccommodation = messages.some(msg => 
+            msg.role === 'user' && 
+            (msg.content.toLowerCase().includes("i'll go with") || 
+             msg.content.toLowerCase().includes("sounds good") ||
+             msg.content.toLowerCase().includes("perfect"))
+        );
+        
+        // Current message has multiple venue recommendations with times/schedules
+        const venueCount = (content.match(/(restaurant|hotel|tour|cafe|bar)/g) || []).length;
+        const hasTimeInfo = content.includes("hours") || content.includes("schedule") || content.includes("open");
+        
+        return hasConfirmedAccommodation && venueCount >= 2 && hasTimeInfo;
+    };
+
+    // Exclude incomplete or question-focused responses
+    const isIncompleteResponse = () => {
+        return (
+            content.includes("would you prefer") ||
+            content.includes("next step:") ||
+            content.includes("let me know") ||
+            content.includes("how you'd like to proceed") ||
+            content.endsWith("?")
+        );
+    };
+
+    const hasItinerary = (hasStructuredSchedule() || hasCompleteTripPlan()) && !isIncompleteResponse();
 
     if (!hasItinerary) return null;
 
@@ -319,7 +340,8 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
         return (
             <div className="prose prose-sm max-w-none">
                 <ReactMarkdown
-                    skipHtml={false}
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]}
                     components={{
                         p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
                         strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
@@ -335,6 +357,18 @@ export default function ChatInterface({ initialMessages = [], className }: ChatI
                         code: ({ children }) => <code className="bg-gray-200 px-1 py-0.5 rounded text-xs">{children}</code>,
                         pre: ({ children }) => <pre className="bg-gray-200 p-2 rounded text-xs overflow-auto">{children}</pre>,
                         blockquote: ({ children }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 mb-2">{children}</blockquote>,
+                        table: ({ children }) => (
+                            <div className="overflow-x-auto mb-4">
+                                <table className="min-w-full border border-gray-300 text-xs">
+                                    {children}
+                                </table>
+                            </div>
+                        ),
+                        thead: ({ children }) => <thead className="bg-gray-50">{children}</thead>,
+                        tbody: ({ children }) => <tbody>{children}</tbody>,
+                        tr: ({ children }) => <tr className="border-b border-gray-200">{children}</tr>,
+                        th: ({ children }) => <th className="border border-gray-300 px-2 py-1 text-left font-semibold">{children}</th>,
+                        td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
                         a: ({ href, children }) => (
                             <a href={href} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-800 underline font-medium">
                                 {children}

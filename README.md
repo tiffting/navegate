@@ -91,7 +91,11 @@ node tests/test-ai-config.js
 
 First travel AI that adapts to YOUR travel personality - whether you're a detailed planner who wants calendar events and itineraries, or a spontaneous explorer who discovers through maps and filters.
 
-**Try the demo**: `npm run dev` then visit `http://localhost:3000`
+### Demo
+
+**🌐 Live Demo**: https://veganbnb-zeta.vercel.app/
+
+**💻 Local Development**: `npm run dev` then visit `http://localhost:3000`
 
 ## Development Workflow
 

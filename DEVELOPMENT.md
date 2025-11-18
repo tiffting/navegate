@@ -178,18 +178,22 @@ const mockVenue = mockListings[0];
 
 ### **Available APIs for Future Integration**
 
-- **HappyCow API**: Restaurant data and reviews
-- **Google Places API**: Hours, contact info, real-time data
-- **OpenRouter**: AI processing for review analysis
-- **Booking platforms**: Accommodation availability
+- **Google Places API**: Restaurant data, reviews, hours, real-time info
+- **Yelp Fusion API**: Restaurant reviews and ratings  
+- **TripAdvisor Content API**: Reviews for restaurants, hotels, attractions
+- **OpenRouter/OpenAI**: AI processing for review analysis
+- **Booking.com API**: Accommodation availability
+- **GetYourGuide API**: Tours and activities
 
 ### **Target Data Sources**
 
-- **HappyCow**: Restaurant data and reviews
-- **Google Places**: Hours, contact info, basic details
-- **TripAdvisor**: Tour and accommodation reviews
+- **Google Places**: Restaurant data, reviews, hours, photos
+- **Yelp**: Restaurant reviews and ratings (free API tier)
+- **TripAdvisor**: Tour and accommodation reviews (partner required)
 - **Booking.com/Airbnb**: Accommodation availability and pricing
 - **Eventbrite/Facebook Events**: Event listings and schedules
+- **Berlin Vegan GitHub**: Open source venue data for Berlin
+- **Web scraping**: As fallback for sites without APIs
 
 ### **Integration Points**
 

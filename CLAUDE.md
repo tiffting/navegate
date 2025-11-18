@@ -71,7 +71,7 @@ This ensures documentation stays current across all AI sessions.
     - Include all logistics and transit times
 
 3. **Data Expansion**: Move beyond Berlin demo data
-    - Integrate real data sources (HappyCow API, Google Places)
+    - Integrate real data sources (Google Places API, web scraping)
     - Expand to other major European cities
     - Community-contributed venue reviews
 
@@ -284,6 +284,24 @@ interface UserPreferences {
 - Business travelers (premium pricing tier)
 - New vegans (onboarding funnel from advocacy orgs)
 
+### **Review Data Sources (No HappyCow API)**
+
+**Restaurant Reviews**:
+- **Google Places API** ($0.032/request) - Reviews, ratings, photos
+- **Yelp Fusion API** (Free tier: 5000 calls/day) - Reviews, ratings
+- **TripAdvisor Content API** (Partner program required)
+- **Web scraping** with Playwright/Puppeteer (last resort)
+
+**Accommodation Reviews**:
+- **Booking.com API** (Partner access required)
+- **Google Hotels API** (Part of Places API)
+- **Airbnb** (No public API - web scraping only)
+
+**Community Sources**:
+- **Berlin Vegan GitHub** (Open source venue data)
+- **Facebook Graph API** (For vegan group recommendations)
+- **Reddit API** (r/VeganTravel, city-specific subs)
+
 **Revenue potential:**
 
 - 31M × $8/month avg × 5% conversion rate = **$148M TAM**
@@ -311,7 +329,7 @@ interface UserPreferences {
 **Future Features:**
 
 - Computer Vision Menu Translator
-- Real data integration (HappyCow, Google Places)
+- Real data integration (Google Places, Yelp, web scraping)
 - Multi-city support
 - Native mobile apps
 
@@ -528,8 +546,8 @@ _Technical details in [DEVELOPMENT.md](DEVELOPMENT.md)_
 
 **1. Restaurants (20)**
 
-- Source: HappyCow, [Berlin Vegan](https://github.com/Berlin-Vegan/berlin-vegan-map/blob/master/angular/src/assets/GastroLocations.json)
-- Reviews: Extract from Google Maps, HappyCow
+- Source: [Berlin Vegan GitHub](https://github.com/Berlin-Vegan/berlin-vegan-map/blob/master/angular/src/assets/GastroLocations.json), Google Maps/Places API
+- Reviews: Google Maps API, TripAdvisor web scraping, Yelp API  
 - Signals: Cross-contamination, staff knowledge, ingredient transparency
 
 **2. Accommodations (10)**
